@@ -1,6 +1,6 @@
 {
     "defines": [
-        ".DEFAULT_GOAL := bin/nightwing",
+        ".DEFAULT_GOAL := bin/nightwing"
     ],
 
     "nightwing": {
