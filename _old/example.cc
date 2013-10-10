@@ -246,8 +246,8 @@ cursor_set (xcb_connection_t *c,
     exit (-1);
   }
 
-  system("xterm");
-  system("xterm");
+  system("xmobar");
+  system("terminator");  
 }
 
 int main ()
