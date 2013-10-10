@@ -1,0 +1,29 @@
+{
+    "target_name": {
+        "type": "source",
+        "depends": [],
+        "root": "./",
+        "target": "bin/main",
+        "sources" : [
+	    "*.cc",
+            "src/*.cc"
+        ],
+        "ignores": [
+            "./thirdparty",
+	    "./_old"
+        ],
+        "dependency_command": "c++ -MM",
+        "compiler": {
+            "command": "c++",
+            "libs": [],
+            "flags": [
+                "ggdb"
+            ],
+            "includes": [
+                "thirdparty/"
+            ],
+            "pkg_configs": ["xcb"],
+            "obj_path": "build/"
+        }
+    }
+}
