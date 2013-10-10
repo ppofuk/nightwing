@@ -1,4 +1,8 @@
 {
+    "defines": [
+        ".DEFAULT_GOAL := bin/nightwing",
+    ],
+
     "nightwing": {
         "type": "source",
         "depends": [],
