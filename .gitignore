@@ -1,4 +1,7 @@
 *~
 nightwing
-bin/*
+bin/
+obj/
 #*
+*#*
+
