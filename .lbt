@@ -24,8 +24,9 @@
                 "ggdb"
             ],
             "includes": [
+                "thirdparty/"
             ],
-            "pkg_configs": [
+                "pkg_configs": [
                 "xcb"
             ],
             "obj_path": "build/"
