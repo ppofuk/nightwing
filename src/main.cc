@@ -16,7 +16,7 @@ int main() {
     fprintf(stderr, "Connection to X failed! Bye, bye.");
     exit(1);
   }
-  
+
   screen->MainLoop();
 
   exit(0);
