@@ -6,14 +6,17 @@ make:
 clean: 
 	rm -f obj/*.o obj/lib/*.o bin/nightwing
 	
-bin/nightwing: build/__src_app.o build/__src_main.o build/__src_screen.o 
+bin/nightwing: build/__src_main.o build/__src_app.o build/__src_event.o build/__src_screen.o 
 	c++  -o $@ $^ `pkg-config --libs --cflags xcb` -ggdb 
+
+build/__src_main.o: src/main.cc src/screen.h
+	c++ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_main.o ./src/main.cc
 
 build/__src_app.o: src/app.cc src/app.h src/config.h
 	c++ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_app.o ./src/app.cc
 
-build/__src_main.o: src/main.cc
-	c++ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_main.o ./src/main.cc
+build/__src_event.o: src/event.cc
+	c++ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_event.o ./src/event.cc
 
 build/__src_screen.o: src/screen.cc src/screen.h
 	c++ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_screen.o ./src/screen.cc
