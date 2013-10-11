@@ -16,6 +16,7 @@ class Observable {
   virtual void Register(Observer* observer);
   virtual void Unregister(Observer* observer);
   virtual void Broadcast(void *arg = 0);
+  virtual void Broadcast(Observer* observer, void *arg = 0);
 
   // Getters
   size_t get_collection_size() { return collection_size_; }

@@ -27,7 +27,13 @@ void Observable::Unregister(Observer* observer) {
 
 void Observable::Broadcast(void *arg) {
   for (size_t i = 0; i < collection_size_; ++i)
-    collection_[i]->Notify(arg);
+    collection_[i]->Notify(this, arg);
+}
+
+void Observable::Broadcast(Observer *observer, void *arg) {
+  for (size_t i = 0; i < collection_size_; ++i)
+    if (collection_[i] == observer)
+      collection_[i]->Notify(this, arg);
 }
 
 } // namespace nightwing
