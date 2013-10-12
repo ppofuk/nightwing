@@ -4,7 +4,9 @@
 
 namespace nightwing {
 
+
 Session* Session::instance_ = 0;
+
 
 Session* Session::Instance() {
   if (instance_ == 0) {
@@ -15,6 +17,7 @@ Session* Session::Instance() {
   return instance_;
 }
 
+
 void Session::Release() {
   if (instance_)
     delete instance_;
@@ -22,6 +25,33 @@ void Session::Release() {
   instance_ = 0;
 }
 
+
+void Session::SetupMouse()
+{
+    xcb_grab_button(dpy_, 0, root_,
+                    XCB_EVENT_MASK_BUTTON_PRESS
+                    | XCB_EVENT_MASK_BUTTON_RELEASE,
+                    XCB_GRAB_MODE_ASYNC,
+                    XCB_GRAB_MODE_ASYNC, root_, XCB_NONE,
+                    1, /* left mouse button */
+                    MOUSEMODKEY);
+
+    xcb_grab_button(dpy_, 0, root_,
+                    XCB_EVENT_MASK_BUTTON_PRESS
+                    | XCB_EVENT_MASK_BUTTON_RELEASE,
+                    XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC,
+                    root_, XCB_NONE,
+                    2, /* middle mouse button */
+                    MOUSEMODKEY);
+
+    xcb_grab_button(dpy_, 0, root_,
+                    XCB_EVENT_MASK_BUTTON_PRESS
+                    | XCB_EVENT_MASK_BUTTON_RELEASE,
+                    XCB_GRAB_MODE_ASYNC,
+                    XCB_GRAB_MODE_ASYNC, root_, XCB_NONE,
+                    3, /* right mouse button */
+                    MOUSEMODKEY);
+}
 
 
 // It is safe to initialize things in constructor
@@ -46,12 +76,12 @@ Session::Session() {
   }
   root_ = screen_->root;
 
-  DEBUG("Session size is %dx%d\nRoot window: %d",
+  DEBUG("Session size is %dx%d\n\t\tRoot window: %d",
         screen_->width_in_pixels,
         screen_->height_in_pixels,
         screen_->root);
 
-  DEBUG("Session root data %ud\n", screen_->root);
+  DEBUG("Session root data %ud", screen_->root);
 
 
   /* TODO: Check for RANDR extension and configure */
@@ -61,7 +91,7 @@ Session::Session() {
   /* TODO: Setup key bindings */
 
   /* TODO: Grab mouse buttons */
-
+  SetupMouse();
 
   /* TODO: Subscribe to events */
   mask = XCB_CW_EVENT_MASK;
@@ -102,15 +132,8 @@ void Session::MainLoop() {
                 // TODO: handle_new_window(map_request->window);
                 break;
 
-            case XCB_MAP_NOTIFY:
-                DEBUG("XCB_MAP_NOTIFY event triggered");
-                // TODO:
-                break;
-
-            case XCB_EXPOSE:
-                DEBUG("XCB_EXPOSE event triggered");
-                expose = (xcb_expose_event_t *)event;
-
+            case XCB_DESTROY_NOTIFY:
+                DEBUG("XCB_DESTROY_NOTIFY event triggered");
                 // TODO:
                 break;
 
@@ -118,14 +141,9 @@ void Session::MainLoop() {
                 DEBUG("XCB_BUTTON_PRESS event triggered");
                 bp = (xcb_button_press_event_t *)event;
 
-                // TODO: create window, NOTE: window class not finished
+                // TODO: create window, !window class not finished
                 // TODO: register window on observable
                 // TODO: send
-                break;
-
-            case XCB_BUTTON_RELEASE:
-                DEBUG("XCB_BUTTON_RELEASE event triggered");
-                // TODO:
                 break;
 
             case XCB_MOTION_NOTIFY:
@@ -133,13 +151,8 @@ void Session::MainLoop() {
                 // TODO:
                 break;
 
-            case XCB_ENTER_NOTIFY:
-                DEBUG("XCB_ENTER_NOTIFY event triggered");
-                // TODO:
-                break;
-
-            case XCB_LEAVE_NOTIFY:
-                DEBUG("XCB_LEAVE_NOTIFY event triggered");
+            case XCB_BUTTON_RELEASE:
+                DEBUG("XCB_BUTTON_RELEASE event triggered");
                 // TODO:
                 break;
 
@@ -148,22 +161,56 @@ void Session::MainLoop() {
                 // TODO:
                 break;
 
-           case XCB_KEY_RELEASE:
+            case XCB_KEY_RELEASE:
                 DEBUG("XCB_KEY_RELEASE event triggered");
                 // TODO:
                 break;
 
-            case XCB_DESTROY_NOTIFY:
-                // TODO:
-                break;
-
-            case XCB_CREATE_NOTIFY:
-                DEBUG("XCB_CREATE_NOTIFY event triggered");
+            case XCB_ENTER_NOTIFY:
+                DEBUG("XCB_ENTER_NOTIFY event triggered");
                 // TODO:
                 break;
 
             case XCB_CONFIGURE_NOTIFY:
                 DEBUG("XCB_CONFIGURE_NOTIFY event triggered");
+                // TODO:
+                break;
+
+            case XCB_CONFIGURE_REQUEST:
+                DEBUG("XCB_CONFIGURE_REQUEST event triggered");
+                // TODO:
+                break;
+
+            case XCB_CLIENT_MESSAGE:
+                DEBUG("XCB_CLIENT_MESSAGE event triggered");
+                // TODO:
+                break;
+
+            case XCB_CIRCULATE_REQUEST:
+                DEBUG("XCB_CIRCULATE_REQUEST event triggered");
+                // TODO:
+                break;
+
+            case XCB_MAPPING_NOTIFY:
+                DEBUG("XCB_MAPPING_NOTIFY event triggered");
+                // TODO:
+                break;
+
+            case XCB_UNMAP_NOTIFY:
+                DEBUG("XCB_UNMAP_NOTIFY event triggered");
+                // TODO:
+                break;
+
+
+            case XCB_LEAVE_NOTIFY:
+                DEBUG("XCB_LEAVE_NOTIFY event triggered");
+                // TODO:
+                break;
+
+
+
+            case XCB_CREATE_NOTIFY:
+                DEBUG("XCB_CREATE_NOTIFY event triggered");
                 // TODO:
                 break;
 

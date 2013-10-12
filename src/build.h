@@ -6,6 +6,8 @@
 
 #define OBSERVABLE_COLLECTION_SIZE 512
 
+// TODO: setup logging level to work with DEBUG, WARNING, INFO macros
+
 #define DEBUG(Args...)                                                  \
     do {                                                                \
         fprintf(stderr, "[ DEBUG ]: ");                                 \
@@ -39,7 +41,11 @@
 //fprintf(log, "%ld\n", bp->event);
 //fclose(log);
 
+// TODO: User configurable stuff
 
-// TODO: setup logging level to work with DEBUG, WARNING, INFO macros
+// depends on keyboard layout, its [ALT] or [WIN] key
+#define MODKEY XCB_MOD_MASK_1
+
+#define MOUSEMODKEY XCB_MOD_MASK_1
 
 #endif /* _BUILD_H_ */
