@@ -1,23 +1,23 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "screen.h"
+#include "session.h"
 
 using namespace nightwing;
 
 void AtExit() {
-  Screen::Release();
+  Session::Release();
 }
 
 int main() {
   atexit(AtExit); // I ate your camel!
 
-  Screen* screen = Screen::Instance();
-  if (screen->HasErrors()) {
+  Session* session = Session::Instance();
+  if (session->HasErrors()) {
     fprintf(stderr, "Connection to X failed! Bye, bye.");
     exit(1);
   }
-  
-  screen->MainLoop();
+
+  session->MainLoop();
 
   exit(0);
 }
