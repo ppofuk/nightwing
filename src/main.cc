@@ -11,13 +11,13 @@ void AtExit() {
 int main() {
   atexit(AtExit); // I ate your camel!
 
-  Session* screen = Session::Instance();
-  if (screen->HasErrors()) {
+  Session* session = Session::Instance();
+  if (session->HasErrors()) {
     fprintf(stderr, "Connection to X failed! Bye, bye.");
     exit(1);
   }
 
-  screen->MainLoop();
+  session->MainLoop();
 
   exit(0);
 }
