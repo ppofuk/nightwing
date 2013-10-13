@@ -48,4 +48,7 @@
 
 #define MOUSEMODKEY XCB_MOD_MASK_1
 
+
+#define TERMINAL "urxvt"
+
 #endif /* _BUILD_H_ */

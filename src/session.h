@@ -22,8 +22,8 @@ class Session {
   public:
     // XCB configure stuff for user interaction
     void SetupMouse();
-    void SetupSession();
     void SetupKeys();
+    void SetupScreens();
 
     // Create new single instance of Session.
     static Session* Instance();
