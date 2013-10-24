@@ -57,6 +57,7 @@ void Session::SetupMouse()
 // It is safe to initialize things in constructor
 // due to nature of singleton
 Session::Session() {
+
   dpy_ = xcb_connect(NULL, &screen_number);
   if (xcb_connection_has_error(dpy_)) {
     has_errors_ = true;
@@ -84,21 +85,30 @@ Session::Session() {
   DEBUG("Session root data %ud", screen_->root);
 
 
-  /* TODO: Check for RANDR extension and configure */
+  /* Check for RANDR extension and configure */
+  // TODO:
 
-  /* TODO: Loop over all clients and setup */
+  /* Loop over all clients and setup */
+  SetupScreens();
 
-  /* TODO: Setup key bindings */
+  /* Setup key bindings */
+  SetupKeys();
 
-  /* TODO: Grab mouse buttons */
+  /* Grab mouse buttons */
   SetupMouse();
 
-  /* TODO: Subscribe to events */
+  /* Subscribe to events */
   mask = XCB_CW_EVENT_MASK;
+          //| XCB_CW_BACK_PIXEL;
 
   values[0] = XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
           | XCB_EVENT_MASK_STRUCTURE_NOTIFY
-          | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY;
+          | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
+          | XCB_EVENT_MASK_KEY_RELEASE // values[1]?
+          | XCB_EVENT_MASK_BUTTON_PRESS
+          | XCB_EVENT_MASK_EXPOSURE
+          | XCB_EVENT_MASK_POINTER_MOTION;
+
 
   cookie = xcb_change_window_attributes_checked(
       dpy_, root_, mask, values);
@@ -106,6 +116,38 @@ Session::Session() {
   error = xcb_request_check(dpy_, cookie);
 
   xcb_flush(dpy_);
+}
+
+/*
+ * @brief Setup all shortcut keys
+ */
+void Session::SetupKeys()
+{
+    // TODO:
+}
+
+/*
+ * @brief Walk through all existing windows and set them up
+ */
+void Session::SetupScreens()
+{
+    int len;
+    xcb_window_t* children;
+    xcb_query_tree_reply_t *reply;
+
+    reply = xcb_query_tree_reply(dpy_,
+                                 xcb_query_tree(dpy_, root_), 0);
+    if (NULL == reply)
+    {
+        ERROR(" SetupScreens(), reply is NULL");
+        return;
+    }
+
+    len = xcb_query_tree_children_length(reply);
+    children = xcb_query_tree_children(reply);
+    DEBUG("Number of children windows: %d", len);
+    /* Setup all windows on this root */
+    // TODO:
 }
 
 // private destructor
@@ -117,18 +159,39 @@ void Session::MainLoop() {
     xcb_button_press_event_t *bp;
     xcb_expose_event_t *expose;
 
-    xcb_generic_event_t* event;
 
+    xcb_create_notify_event_t* new_window;
 
     // TODO: create observable
+    const static uint32_t coords[] = { 10, 20 };
+    const static uint32_t size[] = { 1440, 768 };
 
+    xcb_generic_event_t* event;
     while( event = xcb_wait_for_event(get_dpy()) ) {
         switch(event->response_type & ~0x80)
         {
             case XCB_MAP_REQUEST:
                 DEBUG("XCB_MAP_REQUEST event triggered");
                 map_request = (xcb_map_request_event_t*)event;
+                // ERROR:
+                xcb_change_window_attributes(dpy_,
+                                             map_request->window,
+                                             XCB_CW_BORDER_PIXEL,
+                                             this->values);
+                xcb_configure_window(dpy_,
+                                     map_request->window,
+                                     XCB_CONFIG_WINDOW_X |
+                                     XCB_CONFIG_WINDOW_Y,
+                                     coords);
 
+                xcb_configure_window(dpy_,
+                                     map_request->window,
+                                     XCB_CONFIG_WINDOW_WIDTH |
+                                     XCB_CONFIG_WINDOW_HEIGHT,
+                                     size);
+
+                xcb_map_window(dpy_, map_request->window);
+                xcb_flush(dpy_);
                 // TODO: handle_new_window(map_request->window);
                 break;
 
@@ -201,16 +264,15 @@ void Session::MainLoop() {
                 // TODO:
                 break;
 
-
             case XCB_LEAVE_NOTIFY:
                 DEBUG("XCB_LEAVE_NOTIFY event triggered");
                 // TODO:
                 break;
 
-
-
             case XCB_CREATE_NOTIFY:
                 DEBUG("XCB_CREATE_NOTIFY event triggered");
+                new_window = (xcb_create_notify_event_t*) event;
+
                 // TODO:
                 break;
 
