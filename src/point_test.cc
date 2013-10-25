@@ -26,7 +26,7 @@ void point() {
   NW_TEST(point.x() == 30);
   NW_TEST(point.y() == 20);
 
-  NW_TEST(point == arth) << "Testing the == operator.";
+  NW_TEST(point == arth) << "Testing the == and << operator.";
   NW_TEST(!(point != arth));
  
 }

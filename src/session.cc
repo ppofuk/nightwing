@@ -98,13 +98,20 @@ Session::Session() {
   mask = XCB_CW_EVENT_MASK;
           //| XCB_CW_BACK_PIXEL;
 
-  values[0] = XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-          | XCB_EVENT_MASK_STRUCTURE_NOTIFY
-          | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
-          | XCB_EVENT_MASK_KEY_RELEASE // values[1]?
-          | XCB_EVENT_MASK_BUTTON_PRESS
-          | XCB_EVENT_MASK_EXPOSURE
-          | XCB_EVENT_MASK_POINTER_MOTION;
+  // values[0] = XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
+  //         | XCB_EVENT_MASK_STRUCTURE_NOTIFY
+  //         | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
+  //         | XCB_EVENT_MASK_KEY_RELEASE // values[1]?
+  //         | XCB_EVENT_MASK_BUTTON_PRESS
+  //         | XCB_EVENT_MASK_EXPOSURE
+  //         | XCB_EVENT_MASK_POINTER_MOTION;
+    values[0] =
+        XCB_EVENT_MASK_STRUCTURE_NOTIFY
+        | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
+        | XCB_EVENT_MASK_KEY_RELEASE // values[1]?
+        | XCB_EVENT_MASK_BUTTON_PRESS
+        | XCB_EVENT_MASK_EXPOSURE;
+        //| XCB_EVENT_MASK_POINTER_MOTION;
 
 
   cookie = xcb_change_window_attributes_checked(
@@ -160,8 +167,8 @@ void Session::MainLoop() {
   xcb_create_notify_event_t* new_window;
 
   // TODO: create observable
-  const static uint32_t coords[] = { 10, 20 };
-  const static uint32_t size[] = { 1440, 768 };
+  const static uint32_t coords[] = { 0, 0 };
+  const static uint32_t size[] = { 1024, 768 };
 
   xcb_generic_event_t* event;
   while (event = xcb_wait_for_event(get_dpy())) {
@@ -237,6 +244,7 @@ void Session::MainLoop() {
 
       case XCB_CONFIGURE_REQUEST:
         DEBUG("XCB_CONFIGURE_REQUEST event triggered");
+        xcb_flush(dpy_);
         // TODO:
         break;
 
@@ -279,7 +287,7 @@ void Session::MainLoop() {
     }
     
     // WTF?
-    delete event; // AUDIT:
+    // delete event; // AUDIT:
   }
 }
 
