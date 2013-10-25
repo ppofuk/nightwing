@@ -1,5 +1,5 @@
-#ifndef _SESSION_H_
-#define _SESSION_H_
+#ifndef NIGHTWING_SESSION_H_
+#define NIGHTWING_SESSION_H_
 
 #include <xcb/xcb.h>
 #include <xcb/randr.h>

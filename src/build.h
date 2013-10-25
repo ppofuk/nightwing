@@ -7,6 +7,10 @@
 #define OBSERVABLE_COLLECTION_SIZE 512
 
 // TODO: setup logging level to work with DEBUG, WARNING, INFO macros
+// Open pipe for stderr and stdout to file? Easier
+
+// THIS SHOULD NEVER BE IN BUILD.H!!!!!!!
+// + it's unusable as it is. (test it)
 
 #define DEBUG(Args...)                                                  \
     do {                                                                \
@@ -36,6 +40,7 @@
     } while(0)
 
 // TODO: create macro for file logging
+// Bad idea, million fopens and fcloses.
 
 //log = fopen("log.txt", "a");
 //fprintf(log, "%ld\n", bp->event);

@@ -1,13 +1,13 @@
 {
     "defines": [
-        ".DEFAULT_GOAL := bin/nightwing"
+        ".DEFAULT_GOAL := bin/debug/nightwing"
     ],
 
-    "nightwing": {
+    "nightwing-debug": {
         "type": "source",
         "depends": [],
         "root": "./",
-        "target": "bin/nightwing",
+        "target": "bin/debug/nightwing",
         "sources" : [
 	       "*.cc",
            "src/*.cc"
@@ -29,7 +29,35 @@
                 "pkg_configs": [
                 "xcb"
             ],
-            "obj_path": "build/"
+            "obj_path": "build/debug/"
+        }
+    },
+
+    "nightwing-release": {
+        "type": "source",
+        "depends": [],
+        "root": "./",
+        "target": "bin/nightwing",
+        "sources" : [
+           "*.cc",
+           "src/*.cc"
+        ],
+        "ignores": [
+           "./thirdparty",
+           "./_old"
+        ],
+        "dependency_command": "c++ -MM",
+        "compiler": {
+            "command": "c++",
+            "libs": [],
+            "flags": [],
+            "includes": [
+                "thirdparty/"
+            ],
+                "pkg_configs": [
+                "xcb"
+            ],
+            "obj_path": "build/release/"
         }
     },
 
@@ -37,7 +65,16 @@
         "type": "exec",
         "depends": [],
         "commands": [
-            "rm -f obj/*.o obj/lib/*.o bin/nightwing"
+            "rm -f build/*.o build/release/*.o build/debug/*.o bin/debug/nightwing bin/nightwing"
+        ]
+    },
+
+    "release": {
+        "type": "exec",
+        "depends": [
+            "bin/nightwing"
+        ],
+        "commands": [
         ]
     },
 
