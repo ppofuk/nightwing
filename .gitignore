@@ -1,7 +1,7 @@
 *~
 nightwing
 bin/debug/nightwing
-bin/release/nightwing
+bin/nightwing
 obj/
 build/
 #*
