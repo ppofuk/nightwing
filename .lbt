@@ -39,12 +39,13 @@
         "root": "./",
         "target": "bin/nightwing",
         "sources" : [
-           "*.cc",
-           "src/*.cc"
+            "*.cc",
+            "src/*.cc"
         ],
         "ignores": [
-           "./thirdparty",
-           "./_old"
+            "./thirdparty",
+            "./_old",
+            "./src*.*_test.cc"
         ],
         "dependency_command": "c++ -MM",
         "compiler": {

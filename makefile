@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := bin/debug/nightwing
 
-bin/nightwing: build/release/__src_test.o build/release/__src_window.o build/release/__src_main.o build/release/__src_session.o build/release/__src_app.o build/release/__src_observable.o build/release/__src_point_test.o build/release/__src_point.o build/release/__src_event.o 
+bin/nightwing: build/release/__src_test.o build/release/__src_window.o build/release/__src_main.o build/release/__src_session.o build/release/__src_app.o build/release/__src_observable.o build/release/__src_point.o build/release/__src_event.o 
 	c++  -o $@ $^ `pkg-config --libs --cflags xcb` 
 
 build/release/__src_test.o: src/test.cc src/test.h src/build.h
@@ -20,9 +20,6 @@ build/release/__src_app.o: src/app.cc src/app.h src/config.h
 
 build/release/__src_observable.o: src/observable.cc src/observable.h src/build.h src/observer.h
 	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -c -o build/release/__src_observable.o ./src/observable.cc
-
-build/release/__src_point_test.o: src/point_test.cc src/point.h src/build.h
-	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -c -o build/release/__src_point_test.o ./src/point_test.cc
 
 build/release/__src_point.o: src/point.cc src/point.h
 	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -c -o build/release/__src_point.o ./src/point.cc
@@ -60,7 +57,7 @@ build/debug/__src_app.o: src/app.cc src/app.h src/config.h
 build/debug/__src_observable.o: src/observable.cc src/observable.h src/build.h src/observer.h
 	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -ggdb -c -o build/debug/__src_observable.o ./src/observable.cc
 
-build/debug/__src_point_test.o: src/point_test.cc src/point.h src/build.h
+build/debug/__src_point_test.o: src/point_test.cc src/point.h src/test.h src/build.h
 	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -ggdb -c -o build/debug/__src_point_test.o ./src/point_test.cc
 
 build/debug/__src_point.o: src/point.cc src/point.h
