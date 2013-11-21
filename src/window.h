@@ -3,7 +3,6 @@
 
 #include <xcb/xcb.h>
 
-
 namespace nightwing {
 
 } // namespace nightwing
