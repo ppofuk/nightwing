@@ -2,6 +2,7 @@
 #define NIGHTWING_POINT_H_
 
 #include <xcb/xcb.h>
+#include <math.h>
 
 namespace nightwing {
 
@@ -21,6 +22,15 @@ class Point {
   inline void set_y(const int y) { y_ = y; }
   
   Point& operator+=(const Point& rhs);
+
+  Point& operator-=(const Point& rhs);
+
+  static float Distance(Point first, Point second);
+  
+  operator xcb_point_t() const {
+    xcb_point_t ret = {x(), y()};
+    return ret; 
+  }
 
  private:
   int x_;
@@ -49,8 +59,6 @@ inline Point operator-(const Point& lhs, const Point& rhs) {
   result.set_y(lhs.y() - rhs.y());
   return result; 
 }
-
-
 
 } // namespace nightwing
 

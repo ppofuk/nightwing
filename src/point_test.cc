@@ -28,7 +28,13 @@ void point() {
 
   NW_TEST(point == arth) << "Testing the == and << operator.";
   NW_TEST(!(point != arth));
- 
+
+  point -= xcb_point;
+  NW_TEST(point.x() == 15); 
+  NW_TEST(point.y() == 10);  
+  
+  NW_TEST(nightwing::Point::Distance(point, xcb_point) == 0) << "Must be 0.";
+  
 }
 
 } // namespace test

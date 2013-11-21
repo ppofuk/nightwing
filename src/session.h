@@ -19,48 +19,48 @@ namespace nightwing {
 
 // TODO: class description
 class Session {
-  public:
-    // XCB configure stuff for user interaction
-    void SetupMouse();
-    void SetupKeys();
-    void SetupScreens();
+ public:
+  // XCB configure stuff for user interaction
+  void SetupMouse();
+  void SetupKeys();
+  void SetupScreens();
 
-    // Create new single instance of Session.
-    static Session* Instance();
+  // Create new single instance of Session.
+  static Session* Instance();
 
-    // Destroy Session instance.
-    static void Release();
+  // Destroy Session instance.
+  static void Release();
 
-    // Main loop. Check for events and etc.
-    void MainLoop();
+  // Main loop. Check for events and etc.
+  void MainLoop();
 
-    // Getters
-    bool HasErrors() { return has_errors_; }
-    xcb_connection_t* get_dpy() { return dpy_; }
+  // Getters
+  bool HasErrors() { return has_errors_; }
+  xcb_connection_t* get_dpy() { return dpy_; }
 
-  private:
-    Session();
-    ~Session();
+ private:
+  Session();
+  ~Session();
 
-  protected:
-    static Session* instance_;
+ protected:
+  static Session* instance_;
 
-    int screen_number;
-    bool has_errors_;
-    xcb_connection_t* dpy_;
-    xcb_screen_iterator_t screen_iter;
-    xcb_screen_t* screen_;
-    xcb_drawable_t root_;
+  int screen_number;
+  bool has_errors_;
+  xcb_connection_t* dpy_;
+  xcb_screen_iterator_t screen_iter;
+  xcb_screen_t* screen_;
+  xcb_drawable_t root_;
 
-    uint32_t mask;
-    uint32_t values[2];
+  uint32_t mask;
+  uint32_t values[2];
 
-    xcb_void_cookie_t cookie;
-    xcb_generic_error_t *error;
+  xcb_void_cookie_t cookie;
+  xcb_generic_error_t *error;
 
-    char *focus_col;
-    char *unfocus_col;
-    char *fixed_col;
+  char *focus_col;
+  char *unfocus_col;
+  char *fixed_col;
 
 };
 
