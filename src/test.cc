@@ -6,7 +6,8 @@ Test Test::TestExpr(bool expr,
                     unsigned int line, 
                     const char *func, 
                     const char *file) {
-  // TODO: sprintf every const char* and line from args to Test instance.
+  // TODO: sprintf every const char* and line from args to 
+  // Test instance.
   Test ret;
   ret.passed_ = expr; 
   sprintf(ret.info_, "%s: (%s) in %s: %s:%d\n",

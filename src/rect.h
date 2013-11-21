@@ -12,9 +12,16 @@ class Rect {
   Rect(int x = 0, int y = 0, int width = 0, int height = 0);
 
   Rect(xcb_rectangle_t& rect);
+  
+  // Return the end point of rect. 
+  Point Destination() const;
 
   // Returns the origin point
-  Point& origin() const { return origin_; }
+  Point Origin() const { return origin_; }
+
+  int x() const { return origin_.x(); }
+  
+  int y() const { return origin_.y(); }
 
   int width() const { return width_; }
 
@@ -25,6 +32,10 @@ class Rect {
   void set_height(int height) { height = height_; }
   
   void set_width(int width) { width = width_; }
+
+  void set_x(const int x) { origin_.set_x(x); }
+  
+  void set_y(const int y) { origin_.set_y(y); }
 
  private:
   Point origin_; 

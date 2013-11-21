@@ -17,6 +17,9 @@ Rect::Rect(xcb_rectangle_t& rect) : origin_(Point(rect.x, rect.y)),
                                     height_(rect.height) {
 }
 
+Point Rect::Destination() const {
+  return Point(x() + width_, y() + height_);
+}
 
 
 } // namespace nightwing

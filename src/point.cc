@@ -5,19 +5,19 @@ namespace nightwing {
 Point::Point(int x, int y) : x_(x), y_(y) {
 }
 
-Point::Point(xcb_point_t& point) : x_(point.x), y_(point.y) {  
+Point::Point(xcb_point_t& point) : x_(point.x), y_(point.y) {
 }
 
 Point& Point::operator+=(const Point &rhs) {
   set_x(this->x() + rhs.x());
   set_y(this->y() + rhs.y());
-  return *this; 
+  return *this;
 }
 
 Point& Point::operator-=(const Point &rhs) {
   set_x(this->x() - rhs.x());
   set_y(this->y() - rhs.y());
-  return *this; 
+  return *this;
 }
 
 
