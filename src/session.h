@@ -7,13 +7,14 @@
 #include <xcb/xcb_atom.h>
 #include <xcb/xcb_icccm.h>
 #include <xcb/xproto.h>
-#include <xcb/xcb_util.h>
-
+#include <xcb/xcb_util.h> 
 
 #include <unistd.h>
 #include <stdio.h>
 
 #include "build.h"
+#include "type-helpers.h"
+#include "window-handler.h"
 
 namespace nightwing {
 
@@ -61,7 +62,8 @@ class Session {
   char *focus_col;
   char *unfocus_col;
   char *fixed_col;
-
+  
+  
 };
 
 } // namespace nightwing

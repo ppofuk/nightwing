@@ -12,9 +12,13 @@ class Rect {
   Rect(int x = 0, int y = 0, int width = 0, int height = 0);
 
   Rect(xcb_rectangle_t& rect);
+
+  Rect(xcb_get_geometry_reply_t& rect);
   
   // Return the end point of rect. 
   Point Destination() const;
+  
+  uint32_t* ValueList(); 
 
   // Returns the origin point
   Point Origin() const { return origin_; }
@@ -37,10 +41,25 @@ class Rect {
   
   void set_y(const int y) { origin_.set_y(y); }
 
+  operator uint32_t* () {
+    return ValueList();
+  }
+  
+  operator xcb_rectangle_t() const {
+    xcb_rectangle_t ret = {
+      x(),
+      y(),
+      width_, 
+      height_ 
+    };
+    return ret; 
+  }
+  
  private:
   Point origin_; 
   int width_; 
   int height_; 
+  uint32_t value_list_[4]; 
 };
 
 } // namespace nightwing 

@@ -13,6 +13,8 @@ enum Events {
     XCB_KEY_RELEASE,  // xcb_key_press_event_t
 };
 
+
+
 } // namespace nightwing
 
 #endif /* _SCREEN_H_ */

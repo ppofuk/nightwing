@@ -13,6 +13,8 @@ class Point {
   Point(int x = 0, int y = 0);
   Point(xcb_point_t& point);
 
+  uint32_t* ValueList();
+
   inline int x() const { return x_; }
 
   inline int y() const { return y_; }
@@ -32,9 +34,14 @@ class Point {
     return ret; 
   }
 
+  operator uint32_t* () {
+    return ValueList(); 
+  }
+
  private:
   int x_;
   int y_; 
+  uint32_t value_list_[2]; 
 
 };
 

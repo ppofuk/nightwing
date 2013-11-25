@@ -45,7 +45,7 @@
         "ignores": [
             "./thirdparty",
             "./_old",
-            "./src*.*_test.cc"
+            "./src*.*-test.cc"
         ],
         "dependency_command": "c++ -MM",
         "compiler": {

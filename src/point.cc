@@ -26,4 +26,10 @@ float Point::Distance(Point first, Point second) {
               pow(second.y() - first.y(), 2.0));
 }
 
+uint32_t* Point::ValueList() {
+  value_list_[0] = x_; 
+  value_list_[1] = y_; 
+  return value_list_; 
+}
+
 } // namespace nightwing
