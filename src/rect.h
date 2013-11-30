@@ -15,6 +15,17 @@ class Rect {
 
   Rect(xcb_get_geometry_reply_t& rect);
   
+  // Set function behaves same as giving parameters in constructor
+  void Set(Point& origin, int width = 0, int height = 0);
+
+  void Set(int x = 0, int y = 0, int width = 0, int height = 0);
+
+  void Set(xcb_rectangle_t& rect);
+
+  void Set(xcb_get_geometry_reply_t& rect);
+  
+  void Set(Rect& rect);
+
   // Return the end point of rect. 
   Point Destination() const;
   
@@ -33,9 +44,9 @@ class Rect {
   
   void set_origin(const Point& origin) { origin_ = origin; }
   
-  void set_height(int height) { height = height_; }
+  void set_height(int height) { height_ = height; }
   
-  void set_width(int width) { width = width_; }
+  void set_width(int width) { width_ = width; }
 
   void set_x(const int x) { origin_.set_x(x); }
   
@@ -61,6 +72,24 @@ class Rect {
   int height_; 
   uint32_t value_list_[4]; 
 };
+
+// The returning Rect has a width and height shrinked by rhs. 
+inline Rect operator-(const Rect& lhs, const int rhs) {
+  Rect result(lhs); 
+  result.set_width(lhs.width() - rhs);
+  result.set_height(lhs.height() - rhs);
+  return result; 
+}
+
+// The returning Rect has a width and height added by rhs. 
+inline Rect operator+(const Rect& lhs, const int rhs) {
+  Rect result(lhs); 
+  result.set_width(lhs.width() + rhs);
+  result.set_height(lhs.height() + rhs);
+  return result; 
+}
+
+
 
 } // namespace nightwing 
 

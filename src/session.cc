@@ -5,7 +5,6 @@ namespace nightwing {
 
 Session* Session::instance_ = 0;
 
-
 Session* Session::Instance() {
   if (instance_ == 0) {
     instance_ = new Session();
@@ -51,10 +50,14 @@ void Session::SetupMouse() {
 }
 
 
-// It is safe to initialize things in constructor
-// due to nature of singleton
+// Moved all thing from constructor to Init method. 
+// Member class instances of Session get theirs constructor 
+// called after Session constuctor. 
 Session::Session() {
+  // IT'S NOT SAFE HERE! MOVE TO Init()!
+}
 
+void Session::Init() {
   dpy_ = xcb_connect(NULL, &screen_number);
   if (xcb_connection_has_error(dpy_)) {
     has_errors_ = true;
@@ -78,9 +81,11 @@ Session::Session() {
         screen_->width_in_pixels,
         screen_->height_in_pixels,
         screen_->root);
+  
+  screen_rect_.set_width(screen_->width_in_pixels);
+  screen_rect_.set_height(screen_->height_in_pixels);
 
   DEBUG("Session root data %ud", screen_->root);
-
 
   /* Check for RANDR extension and configure */
   // TODO:
@@ -95,20 +100,24 @@ Session::Session() {
   SetupMouse();
 
   /* Subscribe to events */
-  mask = XCB_CW_EVENT_MASK;
-          //| XCB_CW_BACK_PIXEL;
+  mask_ = XCB_CW_EVENT_MASK;
 
-  values[0] = XCB_EVENT_MASK_STRUCTURE_NOTIFY
-              | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
-              | XCB_EVENT_MASK_KEY_RELEASE // values[1]?
-              | XCB_EVENT_MASK_BUTTON_PRESS
-              | XCB_EVENT_MASK_EXPOSURE;
-  //| XCB_EVENT_MASK_POINTER_MOTION;
+  values_[0] = XCB_EVENT_MASK_STRUCTURE_NOTIFY
+               | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY
+               | XCB_EVENT_MASK_KEY_RELEASE // values[1]?
+               | XCB_EVENT_MASK_BUTTON_PRESS
+               | XCB_EVENT_MASK_EXPOSURE
+               | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
+               | XCB_EVENT_MASK_POINTER_MOTION;
 
 
-  cookie = xcb_change_window_attributes_checked(
-      dpy_, root_, mask, values);
-  error = xcb_request_check(dpy_, cookie);
+  cookie_ = xcb_change_window_attributes_checked(dpy_, 
+                                                 root_,
+                                                 mask_,
+                                                 values_);
+  error_ = xcb_request_check(dpy_, cookie_);
+
+  window_handler_.set_dpy(dpy_);
   xcb_flush(dpy_);
 }
 
@@ -144,141 +153,106 @@ void Session::SetupScreens() {
   // TODO:
 }
 
-// private destructor
-Session::~Session() {}
+// private destructor (no wai sherlock! =)) 
+Session::~Session() {
+}
 
 void Session::MainLoop() {
-  // TODO: refactor to class definition
-  xcb_map_request_event_t *map_request;
-  xcb_button_press_event_t *bp;
-  xcb_expose_event_t *expose;
-
-
-  xcb_create_notify_event_t* new_window;
-
-  // TODO: create observable
-  const static uint32_t coords[] = { 0, 0 };
-  const static uint32_t size[] = { 1024, 768 };
-
-  xcb_generic_event_t* event;
-  while (event = xcb_wait_for_event(get_dpy())) {
-    switch (event->response_type & ~0x80) {
-      case XCB_MAP_REQUEST:
-        DEBUG("XCB_MAP_REQUEST event triggered");
-        map_request = (xcb_map_request_event_t*)event;
-        // ERROR:
-        xcb_change_window_attributes(dpy_,
-                                     map_request->window,
-                                     XCB_CW_BORDER_PIXEL,
-                                     this->values);
-        xcb_configure_window(dpy_,
-                             map_request->window,
-                             XCB_CONFIG_WINDOW_X |
-                             XCB_CONFIG_WINDOW_Y,
-                             coords);
-
-        xcb_configure_window(dpy_,
-                             map_request->window,
-                             XCB_CONFIG_WINDOW_WIDTH |
-                             XCB_CONFIG_WINDOW_HEIGHT,
-                             size);
-
-        xcb_map_window(dpy_, map_request->window);
-        xcb_flush(dpy_);
-        // TODO: handle_new_window(map_request->window);
-        break;
-
+  while (event_ = xcb_wait_for_event(get_dpy())) {
+    switch (event_->response_type & ~0x80) {   
       case XCB_DESTROY_NOTIFY:
-        DEBUG("XCB_DESTROY_NOTIFY event triggered");
-        // TODO:
-        break;
-
-      case XCB_BUTTON_PRESS:
-        DEBUG("XCB_BUTTON_PRESS event triggered");
-        bp = (xcb_button_press_event_t *)event;
-
-        // TODO: create window, !window class not finished
-        // TODO: register window on observable
-        // TODO: send
-        break;
-
-      case XCB_MOTION_NOTIFY:
-        DEBUG("XCB_MOTION_NOTIFY event triggered");
-        // TODO:
-        break;
-
-      case XCB_BUTTON_RELEASE:
-        DEBUG("XCB_BUTTON_RELEASE event triggered");
-        // TODO:
-        break;
-
-      case XCB_KEY_PRESS:
-        DEBUG("XCB_KEY_PRESS event triggered");
-        // TODO:
-        break;
-
-      case XCB_KEY_RELEASE:
-        DEBUG("XCB_KEY_RELEASE event triggered");
-        // TODO:
-        break;
-
-      case XCB_ENTER_NOTIFY:
-        DEBUG("XCB_ENTER_NOTIFY event triggered");
-        // TODO:
-        break;
-
-      case XCB_CONFIGURE_NOTIFY:
-        DEBUG("XCB_CONFIGURE_NOTIFY event triggered");
-        // TODO:
-        break;
+        DEBUG("DESTROY_NOTIFY event");
+        OnDestroyNotify(); 
+        break; 
 
       case XCB_CONFIGURE_REQUEST:
-        DEBUG("XCB_CONFIGURE_REQUEST event triggered");
-        xcb_flush(dpy_);
-        // TODO:
+        DEBUG("CONFIGURE_REQUEST event");
+        OnConfigureRequest();
         break;
-
-      case XCB_CLIENT_MESSAGE:
-        DEBUG("XCB_CLIENT_MESSAGE event triggered");
-        // TODO:
+        
+      case XCB_MAP_REQUEST:
+        DEBUG("MAP_REQUEST event");
+        OnMapRequest();
         break;
-
-      case XCB_CIRCULATE_REQUEST:
-        DEBUG("XCB_CIRCULATE_REQUEST event triggered");
-        // TODO:
-        break;
-
-      case XCB_MAPPING_NOTIFY:
-        DEBUG("XCB_MAPPING_NOTIFY event triggered");
-        // TODO:
-        break;
-
+          
       case XCB_UNMAP_NOTIFY:
-        DEBUG("XCB_UNMAP_NOTIFY event triggered");
-        // TODO:
+        DEBUG("UNMAP_REQUEST event"); 
+        OnUnmapNotify(); 
+        break; 
+        
+      case XCB_ENTER_NOTIFY:
+        DEBUG("ENTER_NOTIFY event"); 
+        OnEnterNotify(); 
         break;
-
-      case XCB_LEAVE_NOTIFY:
-        DEBUG("XCB_LEAVE_NOTIFY event triggered");
-        // TODO:
-        break;
-
-      case XCB_CREATE_NOTIFY:
-        DEBUG("XCB_CREATE_NOTIFY event triggered");
-        new_window = (xcb_create_notify_event_t*) event;
-
-        // TODO:
-        break;
-
+        
+      case XCB_MOTION_NOTIFY:
+        // Please, don't DEBUG this out, it's annoying to read one 
+        // millions lines of motion notify robo-rap sentences. 
+        OnMotionNotify(); 
+        break; 
+        
       default:
-        ERROR("Unknown event type catched: error type: %d",
-              event->response_type);
-        break;
+        // Ignoring uknown event type
+        break; 
     }
-    
-    // WTF?
-    // delete event; // AUDIT:
   }
+}
+
+void Session::OnMotionNotify() {
+  xcb_motion_notify_event_t* event = 
+      (xcb_motion_notify_event_t *) event_; 
+}
+
+
+void Session::OnEnterNotify() {
+  xcb_enter_notify_event_t* event = 
+      (xcb_enter_notify_event_t *) event_; 
+}
+
+void Session::OnMapRequest() {
+  xcb_map_request_event_t* event = 
+      (xcb_map_request_event_t *)event; 
+}
+
+void Session::OnConfigureRequest() {
+  xcb_configure_request_event_t* event = 
+      (xcb_configure_request_event_t *) event_; 
+  
+  
+
+  if (!window_handler_.Exists(event->window)) {
+    Window* window = new Window(event->window); 
+    window_handler_.Add(window); 
+    
+    xcb_configure_window(dpy_, 
+                         event->window, 
+                         XCB_CW_EVENT_MASK,
+                         values_);
+        
+    window->set_rect(screen_rect_);
+    window->set_border_width(2);
+    window_handler_.Apply(window); 
+    window_handler_.SendConfigureNotify(window); 
+  } else {
+    Window* window = window_handler_.Get(event->window);
+    window_handler_.Apply(window); 
+    window_handler_.SendConfigureNotify(window); 
+  }
+}
+
+void Session::OnDestroyNotify() {
+  xcb_destroy_notify_event_t* event = 
+      (xcb_destroy_notify_event_t *) event_; 
+  
+  if (window_handler_.Exists(event->window)) {
+    Window* window = window_handler_.Remove(event->window);
+    delete window; 
+  }
+}
+
+void Session::OnUnmapNotify() {
+  xcb_unmap_notify_event_t* event = 
+      (xcb_unmap_notify_event_t *) event_; 
 }
 
 

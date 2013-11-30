@@ -26,6 +26,21 @@ float Point::Distance(Point first, Point second) {
               pow(second.y() - first.y(), 2.0));
 }
 
+void Point::Set(int x, int y) {
+  x_ = x; 
+  y_ = y; 
+}
+
+void Point::Set(xcb_point_t& point) {
+  x_ = point.x; 
+  y_ = point.y; 
+}
+
+void Point::Set(Point& point) {
+  x_ = point.x(); 
+  y_ = point.y(); 
+}
+
 uint32_t* Point::ValueList() {
   value_list_[0] = x_; 
   value_list_[1] = y_; 

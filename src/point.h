@@ -11,8 +11,18 @@ namespace nightwing {
 class Point {
  public:
   Point(int x = 0, int y = 0);
+
   Point(xcb_point_t& point);
 
+  // Set behaves same as giving parameters to constructor.
+  void Set(int x = 0, int y = 0);
+  
+  void Set(xcb_point_t& point);
+  
+  // Use this in situtation where you can't use default copy operator.
+  void Set(Point& point);
+  
+  // Returns an c-array of length 2. Usable for xcbs set properties. 
   uint32_t* ValueList();
 
   inline int x() const { return x_; }

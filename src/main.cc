@@ -12,6 +12,7 @@ int main() {
   atexit(AtExit); // I ate your camel!
 
   Session* session = Session::Instance();
+  session->Init();
   if (session->HasErrors()) {
     fprintf(stderr, "Connection to X failed! Bye, bye.");
     exit(1);
