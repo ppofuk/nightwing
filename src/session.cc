@@ -117,10 +117,10 @@ void Session::Init() {
                                                  values_);
   error_ = xcb_request_check(dpy_, cookie_);
 
-  window_handler_.set_dpy(dpy_);
-  
   InitVisualType(); 
-
+  window_handler_.set_dpy(dpy_);
+  drawing_handler_.set_dpy(dpy_); 
+  drawing_handler_.set_visual_type(visual_type_);
 
   xcb_flush(dpy_);
 }
