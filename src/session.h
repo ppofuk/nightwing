@@ -15,6 +15,7 @@
 #include "build.h"
 #include "type-helpers.h"
 #include "window-handler.h"
+#include "drawing-handler.h"
 
 namespace nightwing {
 
@@ -27,6 +28,8 @@ class Session {
   void SetupMouse();
   void SetupKeys();
   void SetupScreens();
+
+  void InitVisualType(); 
 
   // Create new single instance of Session.
   static Session* Instance();
@@ -73,13 +76,15 @@ class Session {
   // with active window (for example moving mouse cursor on root). 
   void OnMotionNotify(); 
 
-
   // Main loop is essentially an xcb event loop. 
   void MainLoop();
 
   // Getters
   bool HasErrors() { return has_errors_; }
   xcb_connection_t* get_dpy() { return dpy_; }
+
+  WindowHandler& get_window_handler() { return window_handler_; }
+  DrawingHandler& get_drawing_handler() { return drawing_handler_; }
 
  private:
   Session();
@@ -94,6 +99,7 @@ class Session {
   xcb_screen_iterator_t screen_iter;
   xcb_screen_t* screen_;
   xcb_drawable_t root_;
+  xcb_visualtype_t* visual_type_; 
   
   Rect screen_rect_; 
 
@@ -105,6 +111,7 @@ class Session {
   xcb_generic_event_t* event_; 
   
   WindowHandler window_handler_; 
+  DrawingHandler drawing_handler_; 
 };
 
 } // namespace nightwing

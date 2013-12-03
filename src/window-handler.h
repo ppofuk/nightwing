@@ -4,6 +4,8 @@
 #include "build.h"
 #include "type-helpers.h"
 #include "window.h"
+#include "decorator.h"
+
 #include <xcb/xcb.h>
 #include <stdio.h>
 // TOOD: some compilers don't support this type of hash map

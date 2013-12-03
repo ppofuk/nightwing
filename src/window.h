@@ -8,6 +8,13 @@ namespace nightwing {
 
 class WindowHandler; 
 class Session; 
+
+enum WindowTypes {
+  kNormal,
+  kDecorator,
+  kSpecial
+};
+
 // This a base class for meta informations and properties on Window.
 // It's designed to get easy access and manipulation of properties. 
 // Each window is identified by its |id_|. 
@@ -24,9 +31,9 @@ class Window {
 
   Window(xcb_window_t id);
   
-  Window* get_parent() { return parent_; }
+  Window* get_decorator() { return decorator_; }
   
-  void set_parent(Window* parent) { parent_ = parent; }
+  void set_decorator(Window* decorator) { decorator_ = decorator; }
   
   int get_border_width() const { return border_width_; }
 
@@ -45,6 +52,10 @@ class Window {
   bool Map() { visiable_ = true; }
 
   bool Unmap() { visiable_ = false; }
+  
+  WindowTypes get_type() const { return type_; }
+  
+  void set_type(const WindowTypes type) { type_ = type; }
 
   operator xcb_window_t() const {
     return id_; 
@@ -55,8 +66,10 @@ class Window {
   int border_width_; 
   Rect rect_; 
 
-  Window* parent_; 
+  Window* decorator_; 
   bool visiable_; 
+
+  WindowTypes type_; 
 
  private:
 };

@@ -118,8 +118,31 @@ void Session::Init() {
   error_ = xcb_request_check(dpy_, cookie_);
 
   window_handler_.set_dpy(dpy_);
+  
+  InitVisualType(); 
+
+
   xcb_flush(dpy_);
 }
+
+void Session::InitVisualType() {
+  visual_type_ = NULL;
+  xcb_depth_iterator_t depth_iter;
+
+  depth_iter = xcb_screen_allowed_depths_iterator (screen_);
+  for (; depth_iter.rem; xcb_depth_next (&depth_iter)) {
+    xcb_visualtype_iterator_t visual_iter;
+
+    visual_iter = xcb_depth_visuals_iterator (depth_iter.data);
+    for (; visual_iter.rem; xcb_visualtype_next (&visual_iter)) {
+      if (screen_->root_visual == visual_iter.data->visual_id) {
+        visual_type_ = visual_iter.data;
+        break;
+      }
+    }
+  }              
+}
+
 
 /*
  * @brief Setup all shortcut keys
