@@ -15,7 +15,7 @@ DrawingSurface DrawingHandler::CreateSurface(Window *window) {
 }
 
 void DrawingHandler::InitSurface(DrawingSurface* surface, 
-                                 Window *window) {
+                                 Window* window) {
   if (surface->get_cr()) 
     surface->Destroy(); 
   

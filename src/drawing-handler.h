@@ -18,7 +18,7 @@ class DrawingHandler {
   DrawingSurface CreateSurface(Window* window); 
 
   // Initialize existing surface to |window|. 
-  void InitSurface(DrawingSurface& surface, Window* window); 
+  void InitSurface(DrawingSurface* surface, Window* window); 
 
   // It's important to call this methods correctly before facilitating 
   // this class.
