@@ -63,15 +63,28 @@ class WindowHandler {
   // This should be used in conjuction with configure request event
   // handling. 
   void SendConfigureNotify(Window* window);
+  
+  // Create a new window based on meta-infomrations provided in 
+  // |window|
+  void CreateWindow(Window* window); 
+  
+  // Raise the |window| on top. 
+  void Raise(Window* window); 
+
+  // Destroy's the |window|. 
+  void Destroy(Window* window); 
 
   xcb_connection_t* get_dpy() { return dpy_; }
   
-  // It's important to call this method correctly before facilitating 
+  // It's important to call this methods correctly before facilitating 
   // this class.
   void set_dpy(xcb_connection_t* dpy) { dpy_ = dpy; }
 
+  void set_screen(xcb_screen_t* screen) { screen_ = screen; }
+
  private:
   xcb_connection_t* dpy_;
+  xcb_screen_t* screen_; 
   std::tr1::unordered_map<xcb_window_t, Window*> window_map_; 
   
   DISALLOW_COPY_AND_ASSIGN(WindowHandler);

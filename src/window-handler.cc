@@ -2,7 +2,7 @@
 
 namespace nightwing {
 
-WindowHandler::WindowHandler() : dpy_(NULL) {
+WindowHandler::WindowHandler() : dpy_(NULL), screen_(NULL) {
 
 }
 
@@ -91,6 +91,52 @@ void WindowHandler::SendConfigureNotify(Window* window) {
                  XCB_EVENT_MASK_STRUCTURE_NOTIFY,
                  (char *)((void *)&response)); // Run children ruuun!!
   xcb_flush(dpy_); 
+}
+
+void WindowHandler::CreateWindow(Window *window) {
+  if (screen_ == NULL) {
+    ERROR("screen_ not set! Forgot set_screen()?"); 
+    return; 
+  }
+  
+  uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK; 
+  const uint32_t values[2] = { screen_->black_pixel, 
+                               XCB_EVENT_MASK_STRUCTURE_NOTIFY |
+                               XCB_EVENT_MASK_EXPOSURE };
+  
+  xcb_create_window(dpy_,
+                    XCB_COPY_FROM_PARENT, 
+                    window->id_, 
+                    window->parent_->id_, 
+                    window->rect_.x(), 
+                    window->rect_.y(),
+                    window->rect_.width(),
+                    window->rect_.height(),
+                    window->border_width_, 
+                    XCB_WINDOW_CLASS_INPUT_OUTPUT, 
+                    screen_->root_visual,
+                    value_mask,
+                    values); 
+}
+
+void WindowHandler::Raise(Window* window) {
+  const uint32_t values[] = { XCB_STACK_MODE_ABOVE };
+  if (window->get_decorator()) {
+      xcb_configure_window(dpy_, 
+                           window->decorator_->id_, 
+                           XCB_CONFIG_WINDOW_STACK_MODE, 
+                           values);
+
+  }
+
+  xcb_configure_window(dpy_, 
+                       window->id_, 
+                       XCB_CONFIG_WINDOW_STACK_MODE, 
+                       values);
+}
+
+void WindowHandler::Destroy(Window* window) {
+  xcb_destroy_window(dpy_, window->id_); 
 }
 
 } // namespace nightwing

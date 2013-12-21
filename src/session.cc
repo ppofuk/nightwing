@@ -16,8 +16,10 @@ Session* Session::Instance() {
 
 
 void Session::Release() {
-  if (instance_)
+  if (instance_) {
+    delete instance_->dummy_root_;
     delete instance_;
+  }
 
   instance_ = 0;
 }
@@ -116,9 +118,13 @@ void Session::Init() {
                                                  mask_,
                                                  values_);
   error_ = xcb_request_check(dpy_, cookie_);
+  
+  dummy_root_ = new Window(root_); 
+  dummy_root_->set_rect(screen_rect_); 
 
   InitVisualType(); 
   window_handler_.set_dpy(dpy_);
+  window_handler_.set_screen(screen_); 
   drawing_handler_.set_dpy(dpy_); 
   drawing_handler_.set_visual_type(visual_type_);
 
@@ -235,32 +241,15 @@ void Session::OnEnterNotify() {
 void Session::OnMapRequest() {
   xcb_map_request_event_t* event = 
       (xcb_map_request_event_t *)event; 
+  
+  RegisterWindow(event->window);
 }
 
 void Session::OnConfigureRequest() {
   xcb_configure_request_event_t* event = 
       (xcb_configure_request_event_t *) event_; 
   
-  
-
-  if (!window_handler_.Exists(event->window)) {
-    Window* window = new Window(event->window); 
-    window_handler_.Add(window); 
-    
-    xcb_configure_window(dpy_, 
-                         event->window, 
-                         XCB_CW_EVENT_MASK,
-                         values_);
-        
-    window->set_rect(screen_rect_);
-    window->set_border_width(2);
-    window_handler_.Apply(window); 
-    window_handler_.SendConfigureNotify(window); 
-  } else {
-    Window* window = window_handler_.Get(event->window);
-    window_handler_.Apply(window); 
-    window_handler_.SendConfigureNotify(window); 
-  }
+  RegisterWindow(event->window);
 }
 
 void Session::OnDestroyNotify() {
@@ -269,6 +258,14 @@ void Session::OnDestroyNotify() {
   
   if (window_handler_.Exists(event->window)) {
     Window* window = window_handler_.Remove(event->window);
+    Decorator* decorator = 
+        static_cast<Decorator*>(window->get_decorator()); 
+    
+    if (decorator) {
+      window_handler_.Remove(decorator->get_id()); 
+      window_handler_.Destroy(decorator); 
+      delete decorator; 
+    }
     delete window; 
   }
 }
@@ -276,7 +273,69 @@ void Session::OnDestroyNotify() {
 void Session::OnUnmapNotify() {
   xcb_unmap_notify_event_t* event = 
       (xcb_unmap_notify_event_t *) event_; 
+  
+  if (window_handler_.Exists(event->window)) {
+    Window* window = window_handler_.Get(event->window);
+    if (window->get_decorator()) {
+      window->get_decorator()->Unmap(); 
+      window_handler_.ApplyVisiablity(window->get_decorator());
+    }
+  }
 }
 
+void Session::RegisterWindow(xcb_window_t id) {
+  if (!window_handler_.Exists(id)) {
+    Window* window = new Window(id);
+    window->set_type(kNormal); 
+
+    xcb_configure_window(dpy_, 
+                         id, 
+                         XCB_CW_EVENT_MASK,
+                         values_);
+    
+    window->set_rect(screen_rect_);
+    window->set_border_width(0);
+    CreateDecorator(window); 
+    window_handler_.Apply(window); 
+    window_handler_.SendConfigureNotify(window); 
+  } else {
+    Window* window = window_handler_.Get(id);
+    if (window->get_type() == kNormal) {
+      if (window->get_decorator() == NULL) {
+        CreateDecorator(window);
+      } else {
+        Decorator* decorator = 
+            static_cast<Decorator*>(window->get_decorator()); 
+        decorator->Map(); 
+        decorator->ApplyRect(); 
+        window_handler_.Apply(window->get_decorator());
+      }
+    }
+
+    window_handler_.Apply(window); 
+    window_handler_.SendConfigureNotify(window); 
+  }
+}
+
+void Session::CreateDecorator(Window* window) {
+  // TODO: check for fails. 
+  xcb_window_t id = xcb_generate_id(dpy_); 
+  Decorator* decorator = new Decorator(id);
+  
+  decorator->set_type(kDecorator); 
+  decorator->set_target(window); 
+  window->set_decorator(decorator);
+  decorator->ApplyRects(window->get_rect());
+  
+  drawing_handler_.InitSurface(decorator->get_surface(), decorator);
+  if (decorator->get_surface().get_cr()) {
+    window_handler_.Add(decorator); 
+    window_handler_.Raise(decorator);
+    window_handler_.Raise(window); 
+    decorator->OnExpose(); 
+  } else {
+    ERROR("Can't init cairo surface on decorator!\n"); 
+  }
+}
 
 } // namespace nightwing

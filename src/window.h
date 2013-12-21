@@ -30,11 +30,7 @@ class Window {
   friend class Session; 
 
   Window(xcb_window_t id);
-  
-  Window* get_decorator() { return decorator_; }
-  
-  void set_decorator(Window* decorator) { decorator_ = decorator; }
-  
+    
   int get_border_width() const { return border_width_; }
 
   void set_border_width(int border_width) { 
@@ -47,6 +43,14 @@ class Window {
 
   xcb_window_t get_id() const { return id_; }
   
+  Window* get_decorator() { return decorator_; }
+  
+  void set_decorator(Window* decorator) { decorator_ = decorator; }
+  
+  Window* get_parent() { return parent_; }
+
+  void set_parent(Window* parent) { parent_ = parent; }
+
   bool is_visiable() { return visiable_; }
   
   bool Map() { visiable_ = true; }
@@ -67,6 +71,8 @@ class Window {
   Rect rect_; 
 
   Window* decorator_; 
+  Window* parent_; 
+
   bool visiable_; 
 
   WindowTypes type_; 

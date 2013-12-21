@@ -75,6 +75,11 @@ class Session {
   // MotionNotifiy is triggered on mouse movement without interaction 
   // with active window (for example moving mouse cursor on root). 
   void OnMotionNotify(); 
+  
+  
+  void RegisterWindow(xcb_window_t id); 
+
+  void CreateDecorator(Window* window); 
 
   // Main loop is essentially an xcb event loop. 
   void MainLoop();
@@ -110,6 +115,8 @@ class Session {
   xcb_generic_error_t* error_;  
   xcb_generic_event_t* event_; 
   
+  Window* dummy_root_; 
+
   WindowHandler window_handler_; 
   DrawingHandler drawing_handler_; 
 };

@@ -14,14 +14,14 @@ DrawingSurface DrawingHandler::CreateSurface(Window *window) {
   return surface; 
 }
 
-void DrawingHandler::InitSurface(DrawingSurface* surface, 
+void DrawingHandler::InitSurface(DrawingSurface& surface, 
                                  Window* window) {
-  if (surface->get_cr()) 
-    surface->Destroy(); 
+  if (surface.get_cr()) 
+    surface.Destroy(); 
   
-  surface->Init(window->get_id(), visual_type_, dpy_); 
-  surface->set_rect(window->get_rect());
-  surface->Update(); 
+  surface.set_rect(window->get_rect());
+  surface.Init(window->get_id(), visual_type_, dpy_); 
+  surface.Update(); 
 }
 
 
