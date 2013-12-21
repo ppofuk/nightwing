@@ -13,8 +13,8 @@ Decorator::~Decorator() {
 void Decorator::OnExpose() {
   if (visiable_) {
     surface_.Update(); 
-    
     DEBUG("Expose()"); 
+
     cairo_t* cr = surface_.get_cr(); 
 
     cairo_translate(cr, 0, 7);

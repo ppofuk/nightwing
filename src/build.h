@@ -4,7 +4,7 @@
 // Some nasty macro definitions are and will be defined here.
 // Keep your children away from this file.
 
-#define OBSERVABLE_COLLECTION_SIZE 512
+#define OBSERVABLE_COLLECTION_SIZE 1024
 
 // TODO: setup logging level to work with DEBUG, WARNING, INFO macros
 // Open pipe for stderr and stdout to file? Easier

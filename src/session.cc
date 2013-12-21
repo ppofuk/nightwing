@@ -110,7 +110,8 @@ void Session::Init() {
                | XCB_EVENT_MASK_BUTTON_PRESS
                | XCB_EVENT_MASK_EXPOSURE
                | XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT
-               | XCB_EVENT_MASK_POINTER_MOTION;
+               | XCB_EVENT_MASK_POINTER_MOTION
+               | XCB_EVENT_MASK_EXPOSURE; 
 
 
   cookie_ = xcb_change_window_attributes_checked(dpy_, 
@@ -220,6 +221,11 @@ void Session::MainLoop() {
         OnMotionNotify(); 
         break; 
         
+      case XCB_EXPOSE:
+        DEBUG("XCB_EXPOSE event");
+        OnExpose();
+        break; 
+        
       default:
         // Ignoring uknown event type
         break; 
@@ -279,6 +285,25 @@ void Session::OnUnmapNotify() {
     if (window->get_decorator()) {
       window->get_decorator()->Unmap(); 
       window_handler_.ApplyVisiablity(window->get_decorator());
+    }
+  }
+}
+
+void Session::OnExpose() {
+  xcb_expose_event_t* event = 
+      (xcb_expose_event_t *) event_; 
+  
+  if (!window_handler_.Exists(event->window)) 
+    return; 
+  
+  Window* window = window_handler_.Get(event->window);
+  if (window) {
+    if (window->get_type() == kDecorator) {
+      Decorator* decorator = static_cast<Decorator*>(window);
+      decorator->OnExpose(); 
+
+    } else if (window->get_type() == kSpecial) {
+      // Our special redraw need :D
     }
   }
 }

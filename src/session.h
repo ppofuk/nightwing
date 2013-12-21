@@ -76,6 +76,9 @@ class Session {
   // with active window (for example moving mouse cursor on root). 
   void OnMotionNotify(); 
   
+  // Callback on XCB_EXPOSE
+  // Call all our windows that need redraw. 
+  void OnExpose();
   
   void RegisterWindow(xcb_window_t id); 
 
