@@ -15,11 +15,17 @@ void Decorator::OnExpose() {
     surface_.Update(); 
     DEBUG("Expose()"); 
 
-    cairo_t* cr = surface_.get_cr(); 
+    cairo_t* cr = cairo_create(surface_.get_surface()); 
 
-    cairo_translate(cr, 0, 7);
+    cairo_rectangle(cr, 
+                    0, 
+                    0, 
+                    rect_.width(), 
+                    rect_.height());
     cairo_set_source_rgb(cr, 0.6, 1.0, 0);
-    cairo_paint(cr);
+    cairo_fill(cr);
+
+    cairo_destroy(cr); 
   }
 }
 
@@ -43,5 +49,8 @@ void Decorator::ApplyRect() {
   target_->set_rect(target_rect);
 }
 
+Point Decorator::TargetTopLeft() {
+  return Point(4, 4);
+}
 
 } // namespace nightwing 

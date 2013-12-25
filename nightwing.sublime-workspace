@@ -1,0 +1,173 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"vie",
+				"viewport"
+			]
+		]
+	},
+	"buffers":
+	[
+	],
+	"build_system": "",
+	"command_palette":
+	{
+		"height": 392.0,
+		"selected_items":
+		[
+			[
+				"c++",
+				"Set Syntax: C++"
+			],
+			[
+				"clang",
+				"Preferences: SublimeClang Settings – Default"
+			]
+		],
+		"width": 422.0
+	},
+	"console":
+	{
+		"height": 125.0
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"file_history":
+	[
+		"/home/dashbot/src/nightwing/src/rect-test.cc",
+		"/home/dashbot/src/nightwing/src/window.cc",
+		"/home/dashbot/.config/sublime-text-2/Packages/User/Astyle.py",
+		"/home/dashbot/.config/sublime-text-2/Packages/User/once.sublime-snippet",
+		"/home/dashbot/.config/sublime-text-2/Packages/User/namespace.sublime-snippet",
+		"/home/dashbot/.config/sublime-text-2/Packages/Default/Default (Linux).sublime-keymap",
+		"/home/dashbot/.config/sublime-text-2/Packages/User/Default (Linux).sublime-keymap",
+		"/home/dashbot/src/nightwing/src/observer-collection.h",
+		"/home/dashbot/src/nightwing/src/window.h",
+		"/home/dashbot/src/nightwing/src/session.cc",
+		"/home/dashbot/src/nightwing/src/session.h",
+		"/home/dashbot/.config/sublime-text-2/Packages/User/C++.sublime-settings",
+		"/home/dashbot/src/nightwing/src/drawing-surface.cc",
+		"/home/dashbot/src/nightwing/src/decorator.h",
+		"/home/dashbot/src/nightwing/src/drawing-handler.cc",
+		"/home/dashbot/.config/sublime-text-2/Packages/SublimeClang/SublimeClang.sublime-settings",
+		"/home/dashbot/.config/sublime-text-2/Packages/User/Make.sublime-build",
+		"/home/dashbot/.config/sublime-text-2/Packages/User/Preferences.sublime-settings"
+	],
+	"find":
+	{
+		"height": 34.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"select_all",
+			"\n  ",
+			";\n"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": true,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"sheets":
+			[
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 34.0
+	},
+	"input":
+	{
+		"height": 0.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.clang":
+	{
+		"height": 80.0
+	},
+	"output.clang_static_analyzer":
+	{
+		"height": 0.0
+	},
+	"replace":
+	{
+		"height": 0.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 0.0,
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 227.0,
+	"status_bar_visible": true
+}

@@ -34,6 +34,8 @@ class DrawingSurface {
   void set_rect(const Rect rect) { rect_ = rect; }
  
   cairo_t* get_cr() const { return cr_; }
+  
+  cairo_surface_t* get_surface() { return surface_; }
 
  private:
   Rect rect_; 
