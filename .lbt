@@ -21,14 +21,16 @@
             "command": "c++",
             "libs": [],
             "flags": [
-                "ggdb"
+                "ggdb",
+                "DNIGHTWING_DEBUG",
+                "Wall"
             ],
             "includes": [
                 "thirdparty/"
             ],
-                "pkg_configs": [
+            "pkg_configs": [
                 "xcb",
-		"cairo"
+		        "cairo"
             ],
             "obj_path": "build/debug/"
         }
@@ -56,9 +58,9 @@
             "includes": [
                 "thirdparty/"
             ],
-                "pkg_configs": [
+            "pkg_configs": [
                 "xcb",
-		"cairo"
+		        "cairo"
             ],
             "obj_path": "build/release/"
         }
@@ -83,7 +85,6 @@
 
     "make": {
         "type": "exec",
-        "depends": [],
         "commands": [
             "lbtcli -m .lbt"
         ]

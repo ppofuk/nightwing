@@ -97,7 +97,11 @@ void WindowHandler::SendExposeEventToAll() {
       window_map_.begin();
 
   for (; it != window_map_.end(); it++) {
+    Window* window = (*it).second;
     SendExposeEvent((*it).second);
+    if (window->get_type() == kNormal) {
+      Raise(window);
+    }
   }
 }
 

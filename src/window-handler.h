@@ -20,6 +20,8 @@ namespace nightwing {
 // and xcb correspondent execution.
 class WindowHandler {
  public:
+  typedef std::tr1::unordered_map<xcb_window_t, Window*> WindowMapType;
+
   WindowHandler();
 
   // Return |Window| with specified |id|
@@ -91,6 +93,10 @@ class WindowHandler {
   void set_dpy(xcb_connection_t* dpy) { dpy_ = dpy; }
 
   void set_screen(xcb_screen_t* screen) { screen_ = screen; }
+
+  WindowMapType& get_window_map() {
+    return window_map_;
+  }
 
  private:
   xcb_connection_t* dpy_;

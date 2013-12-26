@@ -15,6 +15,7 @@ Session* Session::Instance() {
 
 void Session::Release() {
   if (instance_) {
+    instance_->RemoveDecorators();
     delete instance_->dummy_root_;
     delete instance_;
   }
@@ -89,12 +90,12 @@ void Session::Init() {
   /* Subscribe to events */
   mask_ = XCB_CW_EVENT_MASK;
 
-  values_[0] = XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-               XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY |
-               XCB_EVENT_MASK_KEY_RELEASE  // values[1]?
-               | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_EXPOSURE |
-               XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT |
-               XCB_EVENT_MASK_POINTER_MOTION | XCB_EVENT_MASK_FOCUS_CHANGE;
+  values_[0] =
+      XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY |
+      XCB_EVENT_MASK_KEY_RELEASE  // values[1]?
+      | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_EXPOSURE |
+      XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_POINTER_MOTION |
+      XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_PROPERTY_CHANGE;
 
   cookie_ = xcb_change_window_attributes_checked(dpy_, root_, mask_, values_);
   error_ = xcb_request_check(dpy_, cookie_);
@@ -232,6 +233,8 @@ void Session::OnConfigureRequest() {
   xcb_configure_request_event_t* event = (xcb_configure_request_event_t*)event_;
 
   RegisterWindow(event->window);
+  if (window_handler_.Exists(event->window))
+    window_handler_.SendConfigureNotify(window_handler_.Get(event->window));
 }
 
 void Session::OnDestroyNotify() {
@@ -308,6 +311,7 @@ void Session::RegisterWindow(xcb_window_t id) {
         decorator->Map();
         decorator->ApplyRect();
         window_handler_.Apply(window->get_decorator());
+        window_handler_.Apply(window);
         window_handler_.Reparent(window, decorator->TargetTopLeft());
       }
 
@@ -341,6 +345,19 @@ void Session::CreateDecorator(Window* window) {
     ERROR("Can't init cairo surface on decorator!\n");
     window_handler_.Destroy(decorator);
     window_handler_.Remove(decorator->id_);
+  }
+}
+
+void Session::RemoveDecorators() {
+  WindowHandler::WindowMapType& window_map = window_handler_.get_window_map();
+  WindowHandler::WindowMapType::iterator it = window_map.begin();
+  for (; it != window_map.end(); it++) {
+    Window* window = (*it).second;
+    if (window->get_type() == kDecorator) {
+      window_handler_.Destroy(window);
+      window_handler_.Remove(window->get_id());
+      delete window;
+    }
   }
 }
 
