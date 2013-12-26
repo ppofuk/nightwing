@@ -15,7 +15,9 @@ Session* Session::Instance() {
 
 void Session::Release() {
   if (instance_) {
-    instance_->RemoveDecorators();
+    if (!instance_->x_kill_exit_) {
+      instance_->RemoveDecorators();
+    }
     delete instance_->dummy_root_;
     delete instance_;
   }
@@ -27,26 +29,26 @@ void Session::SetupMouse() {
   xcb_grab_button(dpy_, 0, root_,
                   XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE,
                   XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, root_, XCB_NONE,
-                  1, /* left mouse button */
+                  1,  // left mouse button
                   MOUSEMODKEY);
 
   xcb_grab_button(dpy_, 0, root_,
                   XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE,
                   XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, root_, XCB_NONE,
-                  2, /* middle mouse button */
+                  2,  // middle mouse button
                   MOUSEMODKEY);
 
   xcb_grab_button(dpy_, 0, root_,
                   XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_BUTTON_RELEASE,
                   XCB_GRAB_MODE_ASYNC, XCB_GRAB_MODE_ASYNC, root_, XCB_NONE,
-                  3, /* right mouse button */
+                  3,  // right mouse button
                   MOUSEMODKEY);
 }
 
 // Moved all thing from constructor to Init method.
 // Member class instances of Session get theirs constructor
 // called after Session constuctor.
-Session::Session() {
+Session::Session() : x_kill_exit_(false) {
   // IT'S NOT SAFE HERE! MOVE TO Init()!
 }
 
@@ -78,24 +80,16 @@ void Session::Init() {
 
   DEBUG("Session root data %ud", screen_->root);
 
-  /* Check for RANDR extension and configure */
+  // Check for RANDR extension and configure
   // TODO:
 
-  /* Setup key bindings */
+  // Need to be changed imho.
   SetupKeys();
 
-  /* Grab mouse buttons */
   SetupMouse();
 
-  /* Subscribe to events */
   mask_ = XCB_CW_EVENT_MASK;
-
-  values_[0] =
-      XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_SUBSTRUCTURE_NOTIFY |
-      XCB_EVENT_MASK_KEY_RELEASE  // values[1]?
-      | XCB_EVENT_MASK_BUTTON_PRESS | XCB_EVENT_MASK_EXPOSURE |
-      XCB_EVENT_MASK_SUBSTRUCTURE_REDIRECT | XCB_EVENT_MASK_POINTER_MOTION |
-      XCB_EVENT_MASK_FOCUS_CHANGE | XCB_EVENT_MASK_PROPERTY_CHANGE;
+  values_[0] = NIGHTWING_ROOT_MASK;
 
   cookie_ = xcb_change_window_attributes_checked(dpy_, root_, mask_, values_);
   error_ = xcb_request_check(dpy_, cookie_);
@@ -166,7 +160,11 @@ void Session::SetupScreens() {
 Session::~Session() {}
 
 void Session::MainLoop() {
-  while (event_ = xcb_wait_for_event(get_dpy())) {
+  // TODO: create a flag on end of while loop for usage in determining the
+  // ability of removing decorators (if it reached out of the while loop then we
+  // can assume that X was shut down which generates an error in |Release()|
+  // because the resources are unenviable)
+  while ((event_ = xcb_wait_for_event(get_dpy()))) {
     switch (event_->response_type & ~0x80) {
       case XCB_DESTROY_NOTIFY:
         DEBUG("DESTROY_NOTIFY event");
@@ -184,7 +182,7 @@ void Session::MainLoop() {
         break;
 
       case XCB_UNMAP_NOTIFY:
-        DEBUG("UNMAP_REQUEST event");
+        DEBUG("UNMAP_NOTIFY event");
         OnUnmapNotify();
         break;
 
@@ -193,8 +191,8 @@ void Session::MainLoop() {
         OnEnterNotify();
         break;
 
-      case XCB_FOCUS_OUT:
-        DEBUG("XCB_FOCUS_OUT event");
+      case XCB_FOCUS_IN:
+        DEBUG("XCB_FOCUS_IN event");
         break;
 
       case XCB_MOTION_NOTIFY:
@@ -209,18 +207,27 @@ void Session::MainLoop() {
         break;
 
       default:
-        // Ignoring uknown event type
+        // Ignoring unknown event type
         break;
     }
   }
+  x_kill_exit_ = true;  // Event loop exit, we can assume we lost X connection.
 }
 
 void Session::OnMotionNotify() {
-  xcb_motion_notify_event_t* event = (xcb_motion_notify_event_t*)event_;
+  // xcb_motion_notify_event_t* event = (xcb_motion_notify_event_t*)event_;
 }
 
 void Session::OnEnterNotify() {
   xcb_enter_notify_event_t* event = (xcb_enter_notify_event_t*)event_;
+
+  if (window_handler_.Exists(event->root)) {
+    Window* window = window_handler_.Get(event->root);
+    if (window->get_type() == kDecorator)
+      window_handler_.Raise(static_cast<Decorator*>(window)->get_target());
+    else
+      window_handler_.Raise(window);
+  }
 }
 
 void Session::OnMapRequest() {
@@ -233,20 +240,26 @@ void Session::OnConfigureRequest() {
   xcb_configure_request_event_t* event = (xcb_configure_request_event_t*)event_;
 
   RegisterWindow(event->window);
-  if (window_handler_.Exists(event->window))
-    window_handler_.SendConfigureNotify(window_handler_.Get(event->window));
+  if (window_handler_.Exists(event->window)) {
+    Window* window = window_handler_.Get(event->window);
+    DEBUG("ConfigureRequest window %d, rect: {%d, %d, %d, %d}",
+          window->get_id(), window->get_rect().x(), window->get_rect().y(),
+          window->get_rect().width(), window->get_rect().height());
+    window_handler_.SendConfigureNotify(window);
+  }
 }
 
 void Session::OnDestroyNotify() {
   xcb_destroy_notify_event_t* event = (xcb_destroy_notify_event_t*)event_;
 
   if (window_handler_.Exists(event->window)) {
+    DEBUG("OnDestroyNotify window id %d", event->window);
+
     Window* window = window_handler_.Remove(event->window);
     Decorator* decorator = static_cast<Decorator*>(window->get_decorator());
 
     if (decorator) {
-      decorator->Unmap();
-      window_handler_.ApplyVisiablity(decorator);
+      DEBUG("Has decorator!");
       window_handler_.Remove(decorator->get_id());
       window_handler_.Destroy(decorator);
       delete decorator;
@@ -254,18 +267,21 @@ void Session::OnDestroyNotify() {
     delete window;
   }
 
-  window_handler_.SendExposeEventToAll();
+  //  window_handler_.SendExposeEventToAll();
 }
 
 void Session::OnUnmapNotify() {
   xcb_unmap_notify_event_t* event = (xcb_unmap_notify_event_t*)event_;
+  DEBUG("UnmapNotify on %d", event->window);
 
   if (window_handler_.Exists(event->window)) {
+    DEBUG("Found window %d", event->window);
+
     Window* window = window_handler_.Get(event->window);
     if (window->get_decorator()) {
+      DEBUG("%d has decorator, unmaping it.", event->window);
       window->get_decorator()->Unmap();
       window_handler_.ApplyVisiablity(window->get_decorator());
-      window->Unmap();
     }
   }
 }
@@ -283,7 +299,7 @@ void Session::OnExpose() {
     window_handler_.SendExposeEvent(decorator->get_target());
 
   } else if (window->get_type() == kSpecial) {
-    // Our special redraw need :D
+    // Our special redraw need
   } else {
     window_handler_.SendExposeEvent(window);
   }
@@ -291,35 +307,33 @@ void Session::OnExpose() {
 
 void Session::RegisterWindow(xcb_window_t id) {
   if (!window_handler_.Exists(id)) {
+    DEBUG("Registering window %d.", id);
+
     Window* window = new Window(id);
-    window->set_type(kNormal);
+    window_handler_.Add(window);
 
     xcb_configure_window(dpy_, id, XCB_CW_EVENT_MASK, values_);
 
     window->set_rect(screen_rect_);
     window->set_border_width(0);
-    CreateDecorator(window);
-    window_handler_.Apply(window);
-    window_handler_.SendConfigureNotify(window);
+
+    CreateDecorator(window);  // CreateDecorator() will apply settings to window
+                              // This will need to be changed.
   } else {
     Window* window = window_handler_.Get(id);
+
     if (window->get_type() == kNormal) {
       if (window->get_decorator() == NULL) {
         CreateDecorator(window);
       } else {
         Decorator* decorator = static_cast<Decorator*>(window->get_decorator());
         decorator->Map();
+        window->Map();
         decorator->ApplyRect();
-        window_handler_.Apply(window->get_decorator());
+        window_handler_.Apply(decorator);
         window_handler_.Apply(window);
-        window_handler_.Reparent(window, decorator->TargetTopLeft());
       }
-
-      window->Map();
     }
-
-    window_handler_.Apply(window);
-    window_handler_.SendConfigureNotify(window);
   }
 }
 
@@ -328,19 +342,25 @@ void Session::CreateDecorator(Window* window) {
   xcb_window_t id = xcb_generate_id(dpy_);
   Decorator* decorator = new Decorator(id);
 
-  decorator->set_type(kDecorator);
+  DEBUG("New decorator on with %d on window %d", id, window->id_);
+
   decorator->set_target(window);
   decorator->set_parent(dummy_root_);
   window->set_decorator(decorator);
   window->set_parent(decorator);
-  decorator->ApplyRects(window->get_rect());
 
+  decorator->ApplyRects(window->get_rect());
   window_handler_.CreateWindow(decorator);
   drawing_handler_.InitSurface(decorator->get_surface(), decorator);
+
+  // Check if the cairo surface is created.
   if (decorator->get_surface().get_cr()) {
-    window_handler_.Add(decorator);
+    window_handler_.Add(decorator);  // Hashmap the decorator
+    window_handler_.ApplyProperties(window);
+
     window_handler_.Apply(decorator);
-    window_handler_.Reparent(window, decorator->TargetTopLeft());
+    window_handler_.Reparent(window, decorator->TargetTopLeft());  // Add
+                                                                   // child
   } else {
     ERROR("Can't init cairo surface on decorator!\n");
     window_handler_.Destroy(decorator);
@@ -354,6 +374,12 @@ void Session::RemoveDecorators() {
   for (; it != window_map.end(); it++) {
     Window* window = (*it).second;
     if (window->get_type() == kDecorator) {
+      // We need to reparent decorated windows to root
+      Decorator* decorator = static_cast<Decorator*>(window);
+      decorator->get_target()->set_parent(dummy_root_);
+      window_handler_.Reparent(decorator->get_target(), Point(0, 0));
+
+      // Destroy decorator
       window_handler_.Destroy(window);
       window_handler_.Remove(window->get_id());
       delete window;

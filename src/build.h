@@ -12,8 +12,7 @@
 // TODO: setup logging level to work with DEBUG, WARNING, INFO macros
 // Open pipe for stderr and stdout to file? Easier
 
-// THIS SHOULD NEVER BE IN BUILD.H!!!!!!!
-// + it's unusable as it is. (test it)
+// THIS SHOULD NEVER BE IN BUILD.H!
 
 #define DEBUG(Args...)              \
   do {                              \
@@ -42,12 +41,5 @@
     fprintf(stderr, ##Args);          \
     fprintf(stderr, "\n");            \
   } while (0)
-
-// TODO: remove thoes from here (they are not build information)
-#define MODKEY XCB_MOD_MASK_1
-
-#define MOUSEMODKEY XCB_MOD_MASK_1
-
-#define TERMINAL "urxvt"
 
 #endif  // NIGHTWING_BUILD_H_

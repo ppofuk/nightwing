@@ -124,8 +124,10 @@ class Session {
 
   WindowHandler window_handler_;
   DrawingHandler drawing_handler_;
+
+  bool x_kill_exit_;
 };
 
-} // namespace nightwing
+}  // namespace nightwing
 
 #endif /* _SESSION_H_ */

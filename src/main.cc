@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 
   session->Init();
   if (session->HasErrors()) {
-    fprintf(stderr, "Connection to X failed! Bye, bye.");
+    fprintf(stderr, "Connection to X failed! Bye, bye.\n");
     exit(1);
   }
 
