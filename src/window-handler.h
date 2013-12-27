@@ -77,6 +77,10 @@ class WindowHandler {
   // Raise the |window| on top.
   void Raise(Window* window);
 
+  // Gives input focus to |window|. Only one window at time can have input
+  // focus.
+  void SetInputFocus(Window* window);
+
   // Destroy's the |window|.
   void Destroy(Window* window);
 
@@ -94,9 +98,7 @@ class WindowHandler {
 
   void set_screen(xcb_screen_t* screen) { screen_ = screen; }
 
-  WindowMapType& get_window_map() {
-    return window_map_;
-  }
+  WindowMapType& get_window_map() { return window_map_; }
 
  private:
   xcb_connection_t* dpy_;

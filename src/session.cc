@@ -139,7 +139,7 @@ void Session::SetupKeys() {
  * @brief Walk through all existing windows and set them up
  */
 void Session::SetupScreens() {
-  int len;
+  size_t len;
   xcb_window_t* children;
   xcb_query_tree_reply_t* reply;
 
@@ -193,6 +193,7 @@ void Session::MainLoop() {
 
       case XCB_FOCUS_IN:
         DEBUG("XCB_FOCUS_IN event");
+        OnFocusIn();
         break;
 
       case XCB_MOTION_NOTIFY:
@@ -215,18 +216,42 @@ void Session::MainLoop() {
 }
 
 void Session::OnMotionNotify() {
-  // xcb_motion_notify_event_t* event = (xcb_motion_notify_event_t*)event_;
+  xcb_motion_notify_event_t* event = (xcb_motion_notify_event_t*)event_;
+
+  // TODO: Check if we enable give focus on mouse over.
+  Focus(event->child);
+}
+
+void Session::OnFocusIn() {
+  xcb_focus_in_event_t* event = (xcb_focus_in_event_t*)event_;
+  Focus(event->event);
 }
 
 void Session::OnEnterNotify() {
   xcb_enter_notify_event_t* event = (xcb_enter_notify_event_t*)event_;
+  DEBUG("OnEnterNotifiy received {root: %d, child: %d}", event->root,
+        event->child);
 
-  if (window_handler_.Exists(event->root)) {
-    Window* window = window_handler_.Get(event->root);
-    if (window->get_type() == kDecorator)
-      window_handler_.Raise(static_cast<Decorator*>(window)->get_target());
-    else
+  Focus(event->child);
+}
+
+void Session::Focus(xcb_window_t id) {
+  DEBUG("Request focus for %d.", id);
+
+  if (window_handler_.Exists(id)) {
+    Window* window = window_handler_.Get(id);
+    if (window->get_type() == kDecorator) {
+      Window* target = static_cast<Decorator*>(window)->get_target();
+      window_handler_.Raise(target);
+      window_handler_.SetInputFocus(target);
+
+      DEBUG("Focus approved!");
+    } else {
       window_handler_.Raise(window);
+      window_handler_.SetInputFocus(window);
+
+      DEBUG("Focus approved!");
+    }
   }
 }
 
@@ -307,18 +332,20 @@ void Session::OnExpose() {
 
 void Session::RegisterWindow(xcb_window_t id) {
   if (!window_handler_.Exists(id)) {
-    DEBUG("Registering window %d.", id);
+    DEBUG("** Registering window %d.", id);
 
     Window* window = new Window(id);
     window_handler_.Add(window);
 
-    xcb_configure_window(dpy_, id, XCB_CW_EVENT_MASK, values_);
+    // xcb_configure_window(dpy_, id, XCB_CW_EVENT_MASK, values_);
 
     window->set_rect(screen_rect_);
     window->set_border_width(0);
 
     CreateDecorator(window);  // CreateDecorator() will apply settings to window
                               // This will need to be changed.
+    window_handler_.SetInputFocus(window);  // It's a new window
+                                            // let's give it focus.
   } else {
     Window* window = window_handler_.Get(id);
 

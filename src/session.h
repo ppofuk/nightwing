@@ -76,9 +76,16 @@ class Session {
   // with active window (for example moving mouse cursor on root).
   void OnMotionNotify();
 
-  // Callback on XCB_EXPOSE
+  // Callback on XCB_EXPOSE.
   // Call all our windows that need redraw.
   void OnExpose();
+
+  // Callback on XCB_FOCUS_IN.
+  // Give input focus to focused window.
+  void OnFocusIn();
+
+  // Raise and give focus to specifed window with |id|.
+  void Focus(xcb_window_t id);
 
   void RegisterWindow(xcb_window_t id);
 

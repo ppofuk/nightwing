@@ -150,6 +150,12 @@ void WindowHandler::Raise(Window* window) {
   xcb_flush(dpy_);
 }
 
+void WindowHandler::SetInputFocus(Window* window) {
+  xcb_set_input_focus(dpy_, XCB_INPUT_FOCUS_POINTER_ROOT, window->id_,
+                      XCB_TIME_CURRENT_TIME);
+  xcb_flush(dpy_);
+}
+
 void WindowHandler::Destroy(Window* window) {
   DEBUG("Destroying %d.", window->id_);
 
