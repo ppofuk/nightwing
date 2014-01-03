@@ -1,26 +1,89 @@
-.DEFAULT_GOAL := bin/nightwing
+.DEFAULT_GOAL := bin/debug/nightwing
+
+bin/nightwing: build/release/__src_window-handler.o build/release/__src_drawing-surface.o build/release/__src_test.o build/release/__src_window.o build/release/__src_main.o build/release/__src_session.o build/release/__src_point.o build/release/__src_decorator.o build/release/__src_event.o build/release/__src_drawing-handler.o build/release/__src_rect.o 
+	c++  -o $@ $^ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` 
+
+build/release/__src_window-handler.o: src/window-handler.cc src/window-handler.h src/build.h src/type-helpers.h src/window.h src/rect.h src/point.h src/decorator.h src/drawing-surface.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_window-handler.o ./src/window-handler.cc
+
+build/release/__src_drawing-surface.o: src/drawing-surface.cc src/drawing-surface.h src/rect.h src/point.h src/build.h src/type-helpers.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_drawing-surface.o ./src/drawing-surface.cc
+
+build/release/__src_test.o: src/test.cc src/test.h src/build.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_test.o ./src/test.cc
+
+build/release/__src_window.o: src/window.cc src/window.h src/rect.h src/point.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_window.o ./src/window.cc
+
+build/release/__src_main.o: src/main.cc src/session.h src/build.h src/type-helpers.h src/window-handler.h src/window.h src/rect.h src/point.h src/decorator.h src/drawing-surface.h src/drawing-handler.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_main.o ./src/main.cc
+
+build/release/__src_session.o: src/session.cc src/session.h src/build.h src/type-helpers.h src/window-handler.h src/window.h src/rect.h src/point.h src/decorator.h src/drawing-surface.h src/drawing-handler.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_session.o ./src/session.cc
+
+build/release/__src_point.o: src/point.cc src/point.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_point.o ./src/point.cc
+
+build/release/__src_decorator.o: src/decorator.cc src/decorator.h src/build.h src/window.h src/rect.h src/point.h src/drawing-surface.h src/type-helpers.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_decorator.o ./src/decorator.cc
+
+build/release/__src_event.o: src/event.cc
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_event.o ./src/event.cc
+
+build/release/__src_drawing-handler.o: src/drawing-handler.cc src/drawing-handler.h src/build.h src/decorator.h src/window.h src/rect.h src/point.h src/drawing-surface.h src/type-helpers.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_drawing-handler.o ./src/drawing-handler.cc
+
+build/release/__src_rect.o: src/rect.cc src/rect.h src/point.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -c -o build/release/__src_rect.o ./src/rect.cc
 
 make: 
 	lbtcli -m .lbt
 	
 clean: 
-	rm -f obj/*.o obj/lib/*.o bin/nightwing
+	rm -f build/*.o build/release/*.o build/debug/*.o bin/debug/nightwing bin/nightwing
 	
-bin/nightwing: build/__src_main.o build/__src_app.o build/__src_observable.o build/__src_event.o build/__src_session.o 
-	c++  -o $@ $^ `pkg-config --libs --cflags xcb` -ggdb 
+release: bin/nightwing
+	
+	
+bin/debug/nightwing: build/debug/__src_window-handler.o build/debug/__src_drawing-surface.o build/debug/__src_test.o build/debug/__src_window.o build/debug/__src_main.o build/debug/__src_session.o build/debug/__src_point.o build/debug/__src_point-test.o build/debug/__src_decorator.o build/debug/__src_event.o build/debug/__src_drawing-handler.o build/debug/__src_rect.o build/debug/__src_rect-test.o 
+	c++  -o $@ $^ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall 
 
-build/__src_main.o: src/main.cc src/session.h src/build.h
-	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_main.o ./src/main.cc
+build/debug/__src_window-handler.o: src/window-handler.cc src/window-handler.h src/build.h src/type-helpers.h src/window.h src/rect.h src/point.h src/decorator.h src/drawing-surface.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_window-handler.o ./src/window-handler.cc
 
-build/__src_app.o: src/app.cc src/app.h src/config.h
-	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_app.o ./src/app.cc
+build/debug/__src_drawing-surface.o: src/drawing-surface.cc src/drawing-surface.h src/rect.h src/point.h src/build.h src/type-helpers.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_drawing-surface.o ./src/drawing-surface.cc
 
-build/__src_observable.o: src/observable.cc src/observable.h src/build.h src/observer.h
-	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_observable.o ./src/observable.cc
+build/debug/__src_test.o: src/test.cc src/test.h src/build.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_test.o ./src/test.cc
 
-build/__src_event.o: src/event.cc
-	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_event.o ./src/event.cc
+build/debug/__src_window.o: src/window.cc src/window.h src/rect.h src/point.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_window.o ./src/window.cc
 
-build/__src_session.o: src/session.cc src/session.h src/build.h src/observable.h src/observer.h
-	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` -ggdb -c -o build/__src_session.o ./src/session.cc
+build/debug/__src_main.o: src/main.cc src/session.h src/build.h src/type-helpers.h src/window-handler.h src/window.h src/rect.h src/point.h src/decorator.h src/drawing-surface.h src/drawing-handler.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_main.o ./src/main.cc
+
+build/debug/__src_session.o: src/session.cc src/session.h src/build.h src/type-helpers.h src/window-handler.h src/window.h src/rect.h src/point.h src/decorator.h src/drawing-surface.h src/drawing-handler.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_session.o ./src/session.cc
+
+build/debug/__src_point.o: src/point.cc src/point.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_point.o ./src/point.cc
+
+build/debug/__src_point-test.o: src/point-test.cc src/point.h src/test.h src/build.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_point-test.o ./src/point-test.cc
+
+build/debug/__src_decorator.o: src/decorator.cc src/decorator.h src/build.h src/window.h src/rect.h src/point.h src/drawing-surface.h src/type-helpers.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_decorator.o ./src/decorator.cc
+
+build/debug/__src_event.o: src/event.cc
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_event.o ./src/event.cc
+
+build/debug/__src_drawing-handler.o: src/drawing-handler.cc src/drawing-handler.h src/build.h src/decorator.h src/window.h src/rect.h src/point.h src/drawing-surface.h src/type-helpers.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_drawing-handler.o ./src/drawing-handler.cc
+
+build/debug/__src_rect.o: src/rect.cc src/rect.h src/point.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_rect.o ./src/rect.cc
+
+build/debug/__src_rect-test.o: src/rect-test.cc src/rect.h src/point.h src/test.h src/build.h
+	c++ -Ithirdparty/ `pkg-config --libs --cflags xcb` `pkg-config --libs --cflags cairo` -ggdb -DNIGHTWING_DEBUG -Wall -c -o build/debug/__src_rect-test.o ./src/rect-test.cc
 

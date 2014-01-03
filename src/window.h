@@ -1,55 +1,110 @@
-#ifndef _WINDOW_H_
-#define _WINDOW_H_
+#ifndef NIGHTWING_WINDOW_H_
+#define NIGHTWING_WINDOW_H_
 
-#include <set>
 #include <xcb/xcb.h>
-#include "observer.h"
+#include "rect.h"
 
 namespace nightwing {
 
-class GraphicsContext;
+class WindowHandler;
+class Session;
 
+enum WindowTypes {
+  kNormal,
+  kDecorator,
+  kSpecial
+};
+
+// This a base class for meta informations and properties on Window.
+// It's designed to get easy access and manipulation of properties.
+// Each window is identified by its |id_|.
+//
+// Basic geometrical properties (x, y, width, height) are contained
+// in |rect_|. See rect.h for more informatio about this structure.
+//
+// Applying properties on X can be done with WindowHandler class.
+// Ref to window-handler.h.
 class Window {
-  public:
-    friend class GraphicsContext;
+ public:
+  friend class WindowHandler;
+  friend class Session;
 
-    Window(int16_t x, int16_t y, uint16_t width,
-           uint16_t height, uint16_t border_width);
-    ~Window();
+  Window(xcb_window_t id);
 
-    void Show();
-    void SetBackgroundColor(uint32_t back_pixel);
-    void SetEventMask(uint32_t event_mask);
+  int get_border_width() const {
+    return border_width_;
+  }
 
-  private:
-    int16_t x,y, width, height, border_width;
+  void set_border_width(int border_width) {
+    border_width_ = border_width;
+  }
 
-    std::set<xcb_cw_t> properties;
+  Rect get_rect() {
+    return rect_;
+  }
 
-    xcb_connection_t* con;
-    xcb_window_t window;
-    xcb_screen_t* screen;
+  void set_rect(const Rect rect) {
+    rect_ = rect;
+  }
 
-    uint32_t mask;
+  xcb_window_t get_id() const {
+    return id_;
+  }
 
-    uint32_t backPixmap;
-    uint32_t backPixel;
-    uint32_t borderPixmap;
-    uint32_t borderPixel;
-    uint32_t bitGravity;
-    uint32_t winGravity;
-    uint32_t backingStore;
-    uint32_t backingPixel;
-    uint32_t overrideRedirect;
-    uint32_t saveUnder;
-    uint32_t eventMask;
-    uint32_t dontPropagate;
-    uint32_t colormap;
-    uint32_t cursor;
+  Window* get_decorator() {
+    return decorator_;
+  }
 
-    uint32_t* genValues();
+  void set_decorator(Window* decorator) {
+    decorator_ = decorator;
+  }
 
+  Window* get_parent() {
+    return   parent_;
+  }
+
+  void set_parent(Window* parent) {
+    parent_ = parent;
+  }
+
+  bool is_visiable() {
+    return visiable_;
+  }
+
+  void Map() {
+    visiable_ = true;
+  }
+
+  void Unmap() {
+    visiable_ = false;
+  }
+
+  WindowTypes get_type() const {
+    return type_;
+  }
+
+  void set_type(const WindowTypes type) {
+    type_ = type;
+  }
+
+  operator xcb_window_t() const {
+    return id_;
+  }
+
+ protected:
+  xcb_window_t id_;
+  int border_width_;
+  Rect rect_;
+
+  Window* decorator_;
+  Window* parent_;
+
+  bool visiable_;
+
+  WindowTypes type_;
+
+ private:
 };
 
 } // namespace nightwing
-#endif /* _WINDOW_H_ */
+#endif // NIGHTWING_WINDOW_H_

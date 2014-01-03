@@ -1,0 +1,5 @@
+{
+    "default": [
+        "call nightwing::test::point()"
+    ]
+}

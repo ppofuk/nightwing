@@ -2,11 +2,10 @@
 
 namespace nightwing {
 
-Window::Window(int16_t x, int16_t y, uint16_t width,
-               uint16_t height, uint16_t border_width)
-        : x(x), y(y),
-          width(width), height(height),
-          border_width(border_width)
-{
-
-}
+Window::Window(xcb_window_t id)
+    : id_(id),
+      decorator_(NULL),
+      parent_(NULL),
+      visiable_(true),
+      type_(kNormal) {}
+}  // namespace nightwing
