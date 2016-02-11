@@ -33,7 +33,8 @@
 		        "cairo"
             ],
             "obj_path": "build/debug/"
-        }
+        },
+        "out": "build/nightwing.mk" 
     },
 
     "nightwing-release": {
@@ -63,7 +64,8 @@
 		        "cairo"
             ],
             "obj_path": "build/release/"
-        }
+        },
+        "out": "build/nightwing.mk"
     },
 
     "clean": {
