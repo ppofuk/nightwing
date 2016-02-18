@@ -6,7 +6,7 @@
 
 namespace nightwing {
 
-// Wrapper around xcb_point_t with operators for easier 
+// Wrapper around xcb_point_t with operators for easier
 // manipulation and abstraction
 class Point {
  public:
@@ -16,65 +16,65 @@ class Point {
 
   // Set behaves same as giving parameters to constructor.
   void Set(int x = 0, int y = 0);
-  
+
   void Set(xcb_point_t& point);
-  
+
   // Use this in situtation where you can't use default copy operator.
   void Set(Point& point);
-  
-  // Returns an c-array of length 2. Usable for xcbs set properties. 
+
+  // Returns an c-array of length 2. Usable for xcbs set properties.
   uint32_t* ValueList();
 
   inline int x() const { return x_; }
 
   inline int y() const { return y_; }
-  
+
   inline void set_x(const int x) { x_ = x; }
-  
+
   inline void set_y(const int y) { y_ = y; }
-  
+
   Point& operator+=(const Point& rhs);
 
   Point& operator-=(const Point& rhs);
 
   static float Distance(Point first, Point second);
-  
+
   operator xcb_point_t() const {
-    xcb_point_t ret = {x(), y()};
-    return ret; 
+    xcb_point_t ret = {static_cast<int16_t>(x()), static_cast<int16_t>(y())};
+    return ret;
   }
 
   operator uint32_t* () {
-    return ValueList(); 
+    return ValueList();
   }
 
  private:
   int x_;
-  int y_; 
-  uint32_t value_list_[2]; 
+  int y_;
+  uint32_t value_list_[2];
 
 };
 
 inline bool operator==(const Point& lhs, const Point& rhs) {
   return lhs.x() == rhs.x() && lhs.y() == rhs.y();
 }
-  
+
 inline bool operator!=(const Point& lhs, const Point& rhs) {
   return !(lhs == rhs);
 }
-  
+
 inline Point operator+(const Point& lhs, const Point& rhs) {
-  Point result(lhs); 
+  Point result(lhs);
   result.set_x(lhs.x() + rhs.x());
   result.set_y(lhs.y() + rhs.y());
-  return result; 
+  return result;
 }
 
 inline Point operator-(const Point& lhs, const Point& rhs) {
-  Point result(lhs); 
+  Point result(lhs);
   result.set_x(lhs.x() - rhs.x());
   result.set_y(lhs.y() - rhs.y());
-  return result; 
+  return result;
 }
 
 } // namespace nightwing
