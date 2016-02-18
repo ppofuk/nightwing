@@ -229,10 +229,9 @@ void Session::OnFocusIn() {
 
 void Session::OnEnterNotify() {
   xcb_enter_notify_event_t* event = (xcb_enter_notify_event_t*)event_;
-  DEBUG("OnEnterNotifiy received {root: %d, child: %d}", event->root,
-        event->child);
+  DEBUG("OnEnterNotifiy received for {%d}", event->event);
 
-  Focus(event->child);
+  Focus(event->event);
 }
 
 void Session::Focus(xcb_window_t id) {
