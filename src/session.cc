@@ -244,12 +244,12 @@ void Session::Focus(xcb_window_t id) {
       window_handler_.Raise(target);
       window_handler_.SetInputFocus(target);
 
-      DEBUG("Focus approved!");
+      DEBUG("Focus approved on decorator!");
     } else {
       window_handler_.Raise(window);
       window_handler_.SetInputFocus(window);
 
-      DEBUG("Focus approved!");
+      DEBUG("Focus approved on window");
     }
   }
 }
@@ -387,6 +387,7 @@ void Session::CreateDecorator(Window* window) {
     window_handler_.Apply(decorator);
     window_handler_.Reparent(window, decorator->TargetTopLeft());  // Add
                                                                    // child
+
   } else {
     ERROR("Can't init cairo surface on decorator!\n");
     window_handler_.Destroy(decorator);
