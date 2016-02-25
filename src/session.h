@@ -97,8 +97,8 @@ class Session {
   bool HasErrors() { return has_errors_; }
   xcb_connection_t* get_dpy() { return dpy_; }
 
-  WindowHandler& get_window_handler() { return window_handler_; }
-  DrawingHandler& get_drawing_handler() { return drawing_handler_; }
+  WindowHandler* get_window_handler() { return &window_handler_; }
+  DrawingHandler* get_drawing_handler() { return &drawing_handler_; }
 
  private:
   Session();
