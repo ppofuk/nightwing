@@ -2,7 +2,8 @@
 
 namespace nightwing {
 
-WindowHandler::WindowHandler() : dpy_(NULL), screen_(NULL) {}
+WindowHandler::WindowHandler() : dpy_(NULL), screen_(NULL) {
+}
 
 void WindowHandler::Add(Window* window) {
   window_map_.insert(
@@ -15,7 +16,9 @@ Window* WindowHandler::Remove(xcb_window_t id) {
   return window;
 }
 
-Window* WindowHandler::Get(xcb_window_t id) { return window_map_[id]; }
+Window* WindowHandler::Get(xcb_window_t id) {
+  return window_map_[id];
+}
 
 bool WindowHandler::Exists(xcb_window_t id) {
   return window_map_.find(id) != window_map_.end();
@@ -28,18 +31,23 @@ void WindowHandler::ApplyProperties(Window* window) {
     return;
   }
 
-  xcb_configure_window(dpy_, window->get_id(),
+  xcb_configure_window(dpy_,
+                       window->get_id(),
                        XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
                            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
                        window->get_rect() - window->get_border_width() * 2);
 
   uint32_t border_width = window->get_border_width();
-  xcb_configure_window(dpy_, window->id_, XCB_CONFIG_WINDOW_BORDER_WIDTH,
-                       &border_width);
+  xcb_configure_window(
+      dpy_, window->id_, XCB_CONFIG_WINDOW_BORDER_WIDTH, &border_width);
 
-  DEBUG("Applying properties to %d: {%d, %d, %d, %d}, %d", window->id_,
-        window->rect_.x(), window->rect_.y(), window->rect_.width(),
-        window->rect_.height(), border_width);
+  DEBUG("Applying properties to %d: {%d, %d, %d, %d}, %d",
+        window->id_,
+        window->rect_.x(),
+        window->rect_.y(),
+        window->rect_.width(),
+        window->rect_.height(),
+        border_width);
 
   xcb_flush(dpy_);
 }
@@ -81,7 +89,10 @@ void WindowHandler::SendConfigureNotify(Window* window) {
   response.override_redirect = 0;
 
   DEBUG("Sending ConfigureNotify to %d.", window->id_);
-  xcb_send_event(dpy_, 0, window->id_, XCB_EVENT_MASK_STRUCTURE_NOTIFY,
+  xcb_send_event(dpy_,
+                 0,
+                 window->id_,
+                 XCB_EVENT_MASK_STRUCTURE_NOTIFY,
                  (char*)((void*)&response));  // Run children ruuun!!
   xcb_flush(dpy_);
 }
@@ -97,8 +108,8 @@ void WindowHandler::SendExposeEvent(Window* window) {
 
   DEBUG("Sending ExposeEvent to %d", window->id_);
 
-  xcb_send_event(dpy_, 0, window->id_, XCB_EVENT_MASK_EXPOSURE,
-                 (char*)((void*)&event));
+  xcb_send_event(
+      dpy_, 0, window->id_, XCB_EVENT_MASK_EXPOSURE, (char*)((void*)&event));
   xcb_flush(dpy_);
 }
 
@@ -122,37 +133,46 @@ void WindowHandler::CreateWindow(Window* window) {
   }
 
   uint32_t value_mask = XCB_CW_BACK_PIXEL | XCB_CW_EVENT_MASK;
-  uint32_t values[2] = {screen_->black_pixel, XCB_EVENT_MASK_STRUCTURE_NOTIFY |
-                                                  XCB_EVENT_MASK_EXPOSURE};
+  uint32_t values[2] = {
+      screen_->black_pixel,
+      XCB_EVENT_MASK_STRUCTURE_NOTIFY | XCB_EVENT_MASK_EXPOSURE};
   if (window->type_ == kDecorator) {
     values[1] = NIGHTWING_DECORATOR_MASK;
   }
 
   DEBUG("Creating new window id: %d", window->id_);
 
-  xcb_create_window(dpy_, XCB_COPY_FROM_PARENT, window->id_,
-                    window->parent_->id_, window->rect_.x(), window->rect_.y(),
-                    window->rect_.width(), window->rect_.height(),
-                    window->border_width_, XCB_WINDOW_CLASS_INPUT_OUTPUT,
-                    screen_->root_visual, value_mask, values);
+  xcb_create_window(dpy_,
+                    XCB_COPY_FROM_PARENT,
+                    window->id_,
+                    window->parent_->id_,
+                    window->rect_.x(),
+                    window->rect_.y(),
+                    window->rect_.width(),
+                    window->rect_.height(),
+                    window->border_width_,
+                    XCB_WINDOW_CLASS_INPUT_OUTPUT,
+                    screen_->root_visual,
+                    value_mask,
+                    values);
   xcb_flush(dpy_);
 }
 
 void WindowHandler::Raise(Window* window) {
   const uint32_t values[] = {XCB_STACK_MODE_ABOVE};
   if (window->get_decorator()) {
-    xcb_configure_window(dpy_, window->decorator_->id_,
-                         XCB_CONFIG_WINDOW_STACK_MODE, values);
+    xcb_configure_window(
+        dpy_, window->decorator_->id_, XCB_CONFIG_WINDOW_STACK_MODE, values);
   } else {
-    xcb_configure_window(dpy_, window->id_, XCB_CONFIG_WINDOW_STACK_MODE,
-                         values);
+    xcb_configure_window(
+        dpy_, window->id_, XCB_CONFIG_WINDOW_STACK_MODE, values);
   }
   xcb_flush(dpy_);
 }
 
 void WindowHandler::SetInputFocus(Window* window) {
-  xcb_set_input_focus(dpy_, XCB_INPUT_FOCUS_POINTER_ROOT, window->id_,
-                      XCB_TIME_CURRENT_TIME);
+  xcb_set_input_focus(
+      dpy_, XCB_INPUT_FOCUS_POINTER_ROOT, window->id_, XCB_TIME_CURRENT_TIME);
   xcb_flush(dpy_);
 }
 
@@ -164,14 +184,15 @@ void WindowHandler::Destroy(Window* window) {
 }
 
 void WindowHandler::Reparent(Window* window, Point top_left) {
-  DEBUG("Reparenting (child: %d) with (parent: %d)", window->id_,
+  DEBUG("Reparenting (child: %d) with (parent: %d)",
+        window->id_,
         window->parent_->id_);
 
   uint32_t values[] = {XCB_NONE};
   xcb_change_window_attributes(dpy_, window->id_, XCB_CW_EVENT_MASK, values);
 
-  xcb_reparent_window(dpy_, window->id_, window->parent_->id_, top_left.x(),
-                      top_left.y());
+  xcb_reparent_window(
+      dpy_, window->id_, window->parent_->id_, top_left.x(), top_left.y());
 
   values[0] = NIGHTWING_PARENTED_MASK & ~XCB_EVENT_MASK_ENTER_WINDOW;
   xcb_change_window_attributes(dpy_, window->id_, XCB_CW_EVENT_MASK, values);
