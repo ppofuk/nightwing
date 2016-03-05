@@ -26,6 +26,11 @@ class WindowHandler {
 
   WindowHandler();
 
+  // Initilize WindowHandler instance.
+  void Init(xcb_connection_t* dpy, xcb_screen_t* screen);
+
+  void Release();
+
   // Return |Window| with specified |id|
   // Returns NULL if the requested Window does not exist.
   // Every XCB window is uniquely identified with it's window id,
@@ -95,7 +100,13 @@ class WindowHandler {
   // Sets title on given |window|.
   void UpdateWindowName(Window* window);
 
+
   xcb_connection_t* get_dpy() { return dpy_; }
+
+  xcb_ewmh_connection_t get_ewmh() const { return ewmh_; }
+
+  xcb_intern_atom_cookie_t* get_ewmh_cookie() const { return ewmh_cookie_; }
+
 
   // It's important to call this methods correctly before facilitating
   // this class.
@@ -108,6 +119,9 @@ class WindowHandler {
  private:
   xcb_connection_t* dpy_;
   xcb_screen_t* screen_;
+  xcb_ewmh_connection_t ewmh_;
+  xcb_intern_atom_cookie_t* ewmh_cookie_;
+
   std::tr1::unordered_map<xcb_window_t, Window*> window_map_;
 
   DISALLOW_COPY_AND_ASSIGN(WindowHandler);

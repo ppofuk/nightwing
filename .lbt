@@ -29,12 +29,12 @@
                 "thirdparty/"
             ],
             "pkg_configs": [
-                "xcb",
+                "xcb-ewmh",
 		        "cairo"
             ],
             "obj_path": "build/debug/"
         },
-        "out": "build/nightwing.mk" 
+        "out": "build/nightwing.mk"
     },
 
     "nightwing-release": {
@@ -60,7 +60,7 @@
                 "thirdparty/"
             ],
             "pkg_configs": [
-                "xcb",
+                "xcb-ewmh",
 		        "cairo"
             ],
             "obj_path": "build/release/"

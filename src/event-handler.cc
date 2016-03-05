@@ -13,8 +13,7 @@ void EventHandler::Init(xcb_connection_t* dpy,
   set_screen(screen);
   set_visual_type(visual_type);
 
-  window_handler_.set_dpy(dpy_);
-  window_handler_.set_screen(screen_);
+  window_handler_.Init(dpy, screen);
   drawing_handler_.set_dpy(dpy_);
   drawing_handler_.set_visual_type(visual_type_);
 
@@ -30,6 +29,7 @@ void EventHandler::Init(xcb_connection_t* dpy,
 void EventHandler::Release() {
   if (is_init()) {
     delete dummy_root_;
+    window_handler_.Release();
     is_init_ = false;
   }
 }

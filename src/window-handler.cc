@@ -2,7 +2,33 @@
 
 namespace nightwing {
 
-WindowHandler::WindowHandler() : dpy_(NULL), screen_(NULL) {
+WindowHandler::WindowHandler() : dpy_(NULL), screen_(NULL), ewmh_cookie_(NULL) {
+}
+
+void WindowHandler::Init(xcb_connection_t* dpy, xcb_screen_t* screen) {
+  set_dpy(dpy);
+  set_screen(screen);
+
+  ewmh_cookie_ = xcb_ewmh_init_atoms(dpy_, &ewmh_);
+  xcb_generic_error_t* error = NULL;
+
+  if (!xcb_ewmh_init_atoms_replies(&ewmh_, ewmh_cookie_, &error)) {
+    DEBUG(
+        "Error in WindowHandler::Init, xcb_ewmh_init_atoms_replies failed with "
+        "code: %d\n",
+        error->error_code);
+  }
+
+  if (error) {
+    free(error);
+  }
+}
+
+void WindowHandler::Release() {
+  if (ewmh_cookie_) {
+    free(ewmh_cookie_);
+    ewmh_cookie_ = NULL;
+  }
 }
 
 void WindowHandler::Add(Window* window) {
@@ -202,24 +228,16 @@ void WindowHandler::Reparent(Window* window, Point top_left) {
 }
 
 void WindowHandler::UpdateWindowName(Window* window) {
-  xcb_get_property_cookie_t cookie;
-  xcb_get_property_reply_t* reply;
+  xcb_intern_atom_cookie_t cookie;
+  xcb_intern_atom_reply_t* reply;
+  xcb_generic_error_t* error;
 
-  cookie = xcb_get_property(
-      dpy_, 0, window->get_id(), XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 0, 0);
-  reply = xcb_get_property_reply(dpy_, cookie, NULL);
-
-  if (reply) {
-    DEBUG("UpdateWindowName to %s", (char*)xcb_get_property_value(reply));
-    if (xcb_get_property_value_length(reply)) {
-      window->set_title(static_cast<char*>(xcb_get_property_value(reply)));
-    } else {
-      window->set_title("\0");
-    }
-
+  cookie = xcb_intern_atom(dpy_, 0, strlen("_NET_WM_NAME"), "_NET_WM_NAME");
+  if ((reply = xcb_intern_atom_reply(dpy_, cookie, &error))) {
+    DEBUG("_NET_WM_NAME atom has ID %u0", reply->atom);
     free(reply);
   } else {
-    window->set_title("\0");
+    DEBUG("X11 Error %d\n", error->error_code);
   }
 }
 
