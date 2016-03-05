@@ -201,4 +201,26 @@ void WindowHandler::Reparent(Window* window, Point top_left) {
   xcb_change_save_set(dpy_, XCB_SET_MODE_INSERT, window->id_);
 }
 
+void WindowHandler::UpdateWindowName(Window* window) {
+  xcb_get_property_cookie_t cookie;
+  xcb_get_property_reply_t* reply;
+
+  cookie = xcb_get_property(
+      dpy_, 0, window->get_id(), XCB_ATOM_WM_NAME, XCB_ATOM_STRING, 0, 0);
+  reply = xcb_get_property_reply(dpy_, cookie, NULL);
+
+  if (reply) {
+    DEBUG("UpdateWindowName to %s", (char*)xcb_get_property_value(reply));
+    if (xcb_get_property_value_length(reply)) {
+      window->set_title(static_cast<char*>(xcb_get_property_value(reply)));
+    } else {
+      window->set_title("\0");
+    }
+
+    free(reply);
+  } else {
+    window->set_title("\0");
+  }
+}
+
 }  // namespace nightwing

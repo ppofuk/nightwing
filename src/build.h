@@ -1,5 +1,7 @@
 #ifndef NIGHTWING_BUILD_H_
 #define NIGHTWING_BUILD_H_
+#include <stdio.h>
+#include <stdlib.h>
 
 // Some nasty macro definitions are and will be defined here.
 // Keep your children away from this file.
@@ -8,6 +10,9 @@
 
 // Disallows nightwing to start on DISPLAY:=0 when compiled for debugging.
 #define NIGHTWING_DISALLOW_DISPLAY_0 1
+
+// Defines maximum title size in sizeof(char)
+#define NIGHTWING_TITLE_MAX_SIZE 128
 
 // TODO: setup logging level to work with DEBUG, WARNING, INFO macros
 // Open pipe for stderr and stdout to file? Easier

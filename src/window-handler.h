@@ -7,6 +7,8 @@
 #include "decorator.h"
 
 #include <xcb/xcb.h>
+#include <xcb/xcb_ewmh.h>
+
 #include <stdio.h>
 // TOOD: some compilers don't support this type of hash map
 //       so we need somekind of abstraction.
@@ -89,6 +91,9 @@ class WindowHandler {
   // |left_top| represents the upper left corner coordinates in
   // the parent window where the child will be placed.
   void Reparent(Window* window, Point left_top);
+
+  // Sets title on given |window|.
+  void UpdateWindowName(Window* window);
 
   xcb_connection_t* get_dpy() { return dpy_; }
 

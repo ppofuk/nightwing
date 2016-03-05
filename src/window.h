@@ -2,7 +2,9 @@
 #define NIGHTWING_WINDOW_H_
 
 #include <xcb/xcb.h>
+#include <string.h>
 #include "rect.h"
+#include "build.h"
 
 namespace nightwing {
 
@@ -91,6 +93,20 @@ class Window {
     return id_;
   }
 
+  const char* get_title() const {
+    return title_;
+  }
+
+  void set_title(const char* title) {
+    // TODO(ppofuk): Safer method for string copy.
+    if(strlen(title) >= NIGHTWING_TITLE_MAX_SIZE) {
+      strncpy(title_, title, NIGHTWING_TITLE_MAX_SIZE - 1);
+    } else {
+      strcpy(title_, title);
+    }
+    DEBUG("window.set_title(\"%s\")", title_);
+  }
+
  protected:
   xcb_window_t id_;
   int border_width_;
@@ -102,6 +118,8 @@ class Window {
   bool visiable_;
 
   WindowTypes type_;
+
+  char title_[NIGHTWING_TITLE_MAX_SIZE];
 
  private:
 };

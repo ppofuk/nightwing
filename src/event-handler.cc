@@ -191,6 +191,7 @@ void EventHandler::RegisterWindow(xcb_window_t id) {
     DEBUG("** Registering window %d.", id);
 
     Window* window = new Window(id);
+    window_handler_.UpdateWindowName(window);
     window_handler_.Add(window);
 
     // xcb_configure_window(dpy_, id, XCB_CW_EVENT_MASK, values_);
