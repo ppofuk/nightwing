@@ -4,6 +4,8 @@ nightwing
 bin/debug/nightwing
 bin/nightwing
 obj/
+build/debug/
+build/release/
 nightwing.sublime-project
 nightwing.sublime-dir
 nightwing.sublime-workspace
