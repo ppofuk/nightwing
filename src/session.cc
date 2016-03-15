@@ -158,6 +158,7 @@ void Session::MainLoop() {
   // because the resources are unenviable)
   while ((event_ = xcb_wait_for_event(get_dpy()))) {
     event_handler_.ProcessEvent(event_);
+    free(event_);
   }
   x_kill_exit_ = true;  // Event loop exit, we can assume we lost X connection.
 }
