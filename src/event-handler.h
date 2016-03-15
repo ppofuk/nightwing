@@ -67,7 +67,7 @@ class EventHandler {
   void OnConfigureRequest(xcb_configure_request_event_t* event);
 
   // Callback on XCB_MAP_REQUEST.
-  // MapReqeust is triggered when a window appeares on screen, or
+  // MapReqeust is triggered when a window appears on screen, or
   // is shown again (switched from hidden state).
   void OnMapRequest(xcb_map_request_event_t* event);
 
@@ -89,8 +89,14 @@ class EventHandler {
   // Give input focus to focused window.
   void OnFocusIn(xcb_focus_in_event_t* event);
 
+  void OnPropertyNotify(xcb_property_notify_event_t* event);
+
   // Raise and give focus to specified window with |id|.
-  void Focus(xcb_window_t id);
+  // If |retry| is set to true, and the window with |id| is not found in map,
+  // then the |RegisterWindow(|id|)| and |Focus(|id|, false) will be called.
+  // In other words, the method will try to register an unmaped window and call
+  // it self once.
+  void Focus(xcb_window_t id, bool retry = true);
 
   void RegisterWindow(xcb_window_t id);
 

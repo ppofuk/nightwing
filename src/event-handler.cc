@@ -22,7 +22,7 @@ void EventHandler::Init(xcb_connection_t* dpy,
 
   dummy_root_ = new Window(screen->root);
   dummy_root_->set_rect(screen_rect_);
-
+  
   is_init_ = true;
 }
 
@@ -141,7 +141,7 @@ void EventHandler::OnEnterNotify(xcb_enter_notify_event_t* event) {
 
 void EventHandler::OnMotionNotify(xcb_motion_notify_event_t* event) {
   // TODO(ppofuk): Check if we enable give focus on mouse over.
-  Focus(event->child);
+  Focus(event->event);
 }
 
 void EventHandler::OnExpose(xcb_expose_event_t* event) {
@@ -158,31 +158,42 @@ void EventHandler::OnExpose(xcb_expose_event_t* event) {
   } else if (window->get_type() == kSpecial) {
     // Our special redraw need
   } else {
-    window_handler_.SendExposeEvent(window);
+    // window_handler_.SendExposeEvent(window);
   }
 }
 
 void EventHandler::OnFocusIn(xcb_focus_in_event_t* event) {
-  Focus(event->event);
+  // Focus(event->event);
 }
 
-void EventHandler::Focus(xcb_window_t id) {
+void EventHandler::Focus(xcb_window_t id, bool retry) {
+  // DEBUG removed becasue it clutters the fuck out of stderr.
   DEBUG("Request focus for %d.", id);
+  if (id && id != dummy_root_->get_id()) {
+    if (window_handler_.Exists(id)) {
+      Window* window = window_handler_.Get(id);
+      if (window->get_type() == kDecorator) {
+        Window* target = static_cast<Decorator*>(window)->get_target();
+        window_handler_.Raise(target);
+        window_handler_.SetInputFocus(target);
 
-  if (window_handler_.Exists(id)) {
-    Window* window = window_handler_.Get(id);
-    if (window->get_type() == kDecorator) {
-      Window* target = static_cast<Decorator*>(window)->get_target();
-      window_handler_.Raise(target);
-      window_handler_.SetInputFocus(target);
+        DEBUG("Focus approved on decorator!");
+      } else {
+        window_handler_.Raise(window);
+        window_handler_.SetInputFocus(window);
 
-      DEBUG("Focus approved on decorator!");
+        DEBUG("Focus approved on window");
+      }
     } else {
-      window_handler_.Raise(window);
-      window_handler_.SetInputFocus(window);
-
-      DEBUG("Focus approved on window");
+      // Window was not found in our hashmap. Try to register it.
+      if (retry) {
+        RegisterWindow(id);
+        Focus(id, false);
+      }
     }
+
+  } else {
+    DEBUG("Focus refused on root!");
   }
 }
 
