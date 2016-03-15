@@ -1,6 +1,8 @@
 {
     "defines": [
-        ".DEFAULT_GOAL := bin/debug/nightwing"
+        ".DEFAULT_GOAL := debug",
+        "prefix=/usr",
+        ".PHONY: install"
     ],
 
     "nightwing-debug": {
@@ -30,6 +32,7 @@
             ],
             "pkg_configs": [
                 "xcb-ewmh",
+                "xcb-icccm",
 		        "cairo"
             ],
             "obj_path": "build/debug/"
@@ -61,7 +64,8 @@
             ],
             "pkg_configs": [
                 "xcb-ewmh",
-		        "cairo"
+                "xcb-icccm",
+		"cairo"
             ],
             "obj_path": "build/release/"
         },
@@ -79,7 +83,18 @@
     "release": {
         "type": "exec",
         "depends": [
+            "structure",
             "bin/nightwing"
+        ],
+        "commands": [
+        ]
+    },
+
+    "debug": {
+        "type": "exec",
+        "depends": [
+            "structure",
+            "bin/debug/nightwing"
         ],
         "commands": [
         ]
@@ -89,6 +104,25 @@
         "type": "exec",
         "commands": [
             "lbtcli -m .lbt"
+        ]
+    },
+
+    "structure": {
+        "type": "exec",
+        "commands": [
+            "mkdir -p ./build/debug",
+            "mkdir -p ./build/release"
+        ]
+    },
+
+    "install": {
+        "type": "exec",
+        "depends": [
+            "bin/nightwing"
+        ],
+        "commands": [
+            "install -m 0755 bin/nightwing $(prefix)/bin",
+            "install -m 0644 share/xsessions/nightwing.desktop $(prefix)/share/xsessions/nightwing.desktop"
         ]
     }
 }

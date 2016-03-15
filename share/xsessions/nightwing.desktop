@@ -1,0 +1,6 @@
+[Desktop Entry]
+Name=Nightwing
+Comment=Log in using the Nightwing window manager (without a session manager)
+Exec=/usr/bin/nightwing
+TryExec=/usr/bin/nightwing
+Type=Application
