@@ -2,6 +2,7 @@
 #define NIGHTWING_BUILD_H_
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 // Some nasty macro definitions are and will be defined here.
 // Keep your children away from this file.
@@ -19,11 +20,27 @@
 
 // THIS SHOULD NEVER BE IN BUILD.H!
 
-#define DEBUG(Args...)              \
-  do {                              \
-    fprintf(stderr, "[ DEBUG ]: "); \
-    fprintf(stderr, ##Args);        \
-    fprintf(stderr, "\n");          \
+namespace nightwing {
+namespace datetime {
+static const char* TimeNow() {
+  static time_t rawtime;
+  static tm* timeinfo;
+  static char buffer[30];
+
+  time(&rawtime);
+  timeinfo = localtime(&rawtime);
+  strftime(buffer, 30, "%I:%M%p", timeinfo);
+  return static_cast<const char*>(buffer);
+}
+}  // namespace datetime
+}  // namespace nightwing
+
+#define DEBUG(Args...)                                       \
+  do {                                                       \
+    fprintf(stderr, "[ DEBUG ]  ");                          \
+    fprintf(stderr, "%s: ", nightwing::datetime::TimeNow()); \
+    fprintf(stderr, ##Args);                                 \
+    fprintf(stderr, "\n");                                   \
   } while (0)
 
 #define ERROR(Args...)              \
