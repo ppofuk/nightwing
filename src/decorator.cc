@@ -2,7 +2,7 @@
 
 namespace nightwing {
 
-Decorator::Decorator(xcb_window_t& id) : Window(id) { type_ = kDecorator; }
+Decorator::Decorator(xcb_window_t id) : Window(id) { type_ = kDecorator; }
 
 Decorator::~Decorator() { surface_.Destroy(); }
 

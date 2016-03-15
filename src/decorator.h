@@ -10,7 +10,7 @@ namespace nightwing {
 // Decorator is an special Window type.
 class Decorator : public Window {
  public:
-  Decorator(xcb_window_t& id);
+  Decorator(xcb_window_t id);
   virtual ~Decorator();
 
   void OnExpose();
