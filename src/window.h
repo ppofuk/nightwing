@@ -107,6 +107,14 @@ class Window {
     DEBUG("window.set_title(\"%s\")", title_);
   }
 
+  void set_title(const char* title, uint32_t size) {
+    if (size >= NIGHTWING_TITLE_MAX_SIZE)
+      size = NIGHTWING_TITLE_MAX_SIZE - 1;
+
+    memcpy(title_, title, static_cast<size_t>(size));
+    title_[size] = '\0';
+  }
+
  protected:
   xcb_window_t id_;
   int border_width_;

@@ -8,11 +8,13 @@
 
 #include <xcb/xcb.h>
 #include <xcb/xcb_ewmh.h>
+#include <xcb/xcb_icccm.h>
 
 #include <stdio.h>
 // TOOD: some compilers don't support this type of hash map
 //       so we need somekind of abstraction.
 #include <tr1/unordered_map>
+#include <string>
 
 namespace nightwing {
 

@@ -57,11 +57,13 @@ void WindowHandler::ApplyProperties(Window* window) {
     return;
   }
 
+  // Notice the - opretion on Rect type.
   xcb_configure_window(dpy_,
                        window->get_id(),
                        XCB_CONFIG_WINDOW_X | XCB_CONFIG_WINDOW_Y |
                            XCB_CONFIG_WINDOW_WIDTH | XCB_CONFIG_WINDOW_HEIGHT,
                        window->get_rect() - window->get_border_width() * 2);
+
 
   uint32_t border_width = window->get_border_width();
   xcb_configure_window(
@@ -228,16 +230,28 @@ void WindowHandler::Reparent(Window* window, Point top_left) {
 }
 
 void WindowHandler::UpdateWindowName(Window* window) {
-  xcb_intern_atom_cookie_t cookie;
-  xcb_intern_atom_reply_t* reply;
-  xcb_generic_error_t* error;
+  xcb_ewmh_get_utf8_strings_reply_t data;
+  xcb_get_property_cookie_t property;
 
-  cookie = xcb_intern_atom(dpy_, 0, strlen("_NET_WM_NAME"), "_NET_WM_NAME");
-  if ((reply = xcb_intern_atom_reply(dpy_, cookie, &error))) {
-    DEBUG("_NET_WM_NAME atom has ID %u0", reply->atom);
-    free(reply);
+  property = xcb_ewmh_get_wm_name(&ewmh_, window->get_id());
+
+
+  if (xcb_ewmh_get_wm_name_reply(&ewmh_, property, &data, NULL)) {
+    DEBUG("EWMH _NET_WM_NAME: %s", data.strings);
+    window->set_title(data.strings, data.strings_len);
   } else {
-    DEBUG("X11 Error %d\n", error->error_code);
+    DEBUG("ewmh_get_wm_name_reply failed");
+
+    // Window does not have EWMH or there was an error, let's try ICCCM
+    property = xcb_icccm_get_wm_name(dpy_, window->get_id());
+    xcb_icccm_get_text_property_reply_t icccm_data;
+    if (xcb_icccm_get_wm_name_reply(dpy_, property, &icccm_data, NULL)) {
+      DEBUG("ICCCM WM_NAME: %s", icccm_data.name);
+      window->set_title(icccm_data.name, icccm_data.name_len);
+    } else {
+      // EWMH and ICCCM were unsuccesfull.
+
+    }
   }
 }
 
